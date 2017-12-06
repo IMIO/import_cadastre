@@ -1,18 +1,20 @@
-
 Prérequis:
-  * python3-dev
-  *
-  * CREATE EXTENTION postgis;
+==========
+
+ - python3-dev
+ - CREATE EXTENTION postgis;
 
 Variables d'environnement :
+===========================
 
-  * CADASTREDIR : qui pointe vers le répertoire contenant tout les fichiers du cadastre.
-  * PG_HOST : hôte de la base de données (ex: localhost)
-  * DATABASE_NAME : nom de la base de données (ex: test_urban)
-  * DB_USER_NAME : utilisateur ayant le droit de CREATE TABLE et INSERT (ex: propriétaire de la db)
-  * DB_USER_PASSWORD : password de l'utilisateur
+ - CADASTREDIR : qui pointe vers le répertoire contenant tout les fichiers du cadastre.
+ - PG_HOST : hôte de la base de données (ex: localhost)
+ - DATABASE_NAME : nom de la base de données (ex: test_urban)
+ - DB_USER_NAME : utilisateur ayant le droit de CREATE TABLE et INSERT (ex: propriétaire de la db)
+ - DB_USER_PASSWORD : password de l'utilisateur
 
 Structure du répertoire de données cadastrales :
+================================================
 
 >Soignies
     * Matrice
@@ -28,9 +30,10 @@ Structure du répertoire de données cadastrales :
 Exemple de valeur pour la configuration d'exemple : /Users/niko/dev_imio/import_cadastre/data/Soignies
 
 Utilisation:
+============
 
-  * make install
-  * make all
+ - make install
+ - make all
 
  Données nécéssaires pour urbanmap dans v_map_capa:
 
