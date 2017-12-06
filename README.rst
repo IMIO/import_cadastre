@@ -16,7 +16,8 @@ Variables d'environnement :
 Structure du répertoire de données cadastrales :
 ================================================
 
->Soignies
+ ``
+ Soignies
     * Matrice
         * Owner.csv
         * Parcel.csv
@@ -26,7 +27,7 @@ Structure du répertoire de données cadastrales :
         * B_CaBu.shp
         * A_AdMu.shp
         * ....
-
+``
 Exemple de valeur pour la configuration d'exemple : /Users/niko/dev_imio/import_cadastre/data/Soignies
 
 Utilisation:
@@ -36,7 +37,7 @@ Utilisation:
  - make all
 
  Données nécéssaires pour urbanmap dans v_map_capa:
-
+``
  {name: 'codeparcelle', type: 'string'}, --> ok
  {name: 'co1', type: 'string'}, --> xxx -> builtSurface from prc ?
  {name: 'prc', type: 'string'}, --> ok -> Num. Parc.
@@ -53,3 +54,4 @@ Utilisation:
  {name: 'acj' , type: 'string'}, --> xxx --> Année de construction -> constructionYear de la parcelle ? vide dans les données de tests
  {name: 'adr1' , type: 'string'}, --> ok
  {name: 'adr2' , type: 'string'} --> ok
+``
