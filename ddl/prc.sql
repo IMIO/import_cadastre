@@ -2,6 +2,7 @@ DROP TABLE IF EXISTS public.prc;
 
 CREATE TABLE public.prc
 (
+    id serial primary key,
     capakey character varying(34),
     daa double precision,
     ord character varying(8),
@@ -89,6 +90,7 @@ CREATE TABLE public.prc
     n56 double precision,
     sheet character varying(12)
 );
+
 
 DROP INDEX IF EXISTS public.prc_capakey_idx;
 

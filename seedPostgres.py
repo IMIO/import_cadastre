@@ -123,7 +123,7 @@ def main():
         "pe", "adr1", "adr2", "daa"
     ], sep="|")
     copy_from_csv_to_postgres_inserts(conn, path_to_prc, "prc", [
-        "capakey", "daa", "sl1", "prc", "na1","co1","ha1","ri1","rscod"
+        "capakey", "daa", "sl1", "prc", "na1","co1","ha1","ri1","rscod","ord"
     ], sep="|")
 
     load_shapefile(conn, "capa", path_to_capa, [

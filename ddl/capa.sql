@@ -25,11 +25,12 @@ CREATE TABLE public.capa
     exposant character varying(5),
     bis character varying(1),
     puissance character varying(1),
-    CONSTRAINT capa_pkey PRIMARY KEY (gid),
     CONSTRAINT enforce_dims_the_geom CHECK (st_ndims(the_geom) = 2),
     --CONSTRAINT enforce_geotype_the_geom CHECK (geometrytype(the_geom) = 'MULTIPOLYGON'::text OR the_geom IS NULL),
     CONSTRAINT enforce_srid_the_geom CHECK (st_srid(the_geom) = 31370)
 );
+
+ALTER TABLE capa ADD PRIMARY KEY(gid);
 
 CREATE INDEX capa_the_geom_gist
     ON public.capa USING gist

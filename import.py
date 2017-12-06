@@ -1,4 +1,4 @@
-# -- coding: tf-8 --
+# -- coding: utf-8 --
 
 # Conversion fichiers cadastre Urbain (2016+) vers tables utilisée par Urban
 #  génération du shape file b_capa avec les coordonnées de la parcelle
@@ -13,6 +13,7 @@ import pandas as pd
 import geopandas as gpd
 import os
 import sys
+import numpy as np
 
 import cadutils
 
@@ -79,8 +80,8 @@ pe.loc[:,'daa'] = dO['divCad']*100000 + dO['articleNumber']
 pe.loc[:,"adr1"] = dO['zipCode'].str.cat (dO['municipality_fr'], sep = ' ')
 pe.loc[:,'adr2'] = dO['street_fr'].str.cat (dO['number'], sep = ' ')
 
-prc = pd.DataFrame (dP[['propertySituationIdf','capakey','street_situation','divCad','section','primaryNumber','bisNumber','exponentLetter','exponentNumber','articleNumber','articleOrder','surfaceTaxable','soilRent','cadastralIncome','street_code','constructionYear']],
-                    columns =['propertySituationIdf','capakey','street_situation','divCad','section','primaryNumber','bisNumber','exponentLetter', 'exponentNumber','articleNumber','articleOrder','surfaceTaxable','soilRent','cadastralIncome','street_code','constructionYear','daa'])
+prc = pd.DataFrame (dP[['propertySituationIdf','capakey','street_situation','divCad','section','primaryNumber','bisNumber','exponentLetter','exponentNumber','articleNumber','articleOrder','surfaceTaxable','soilRent','cadastralIncome','street_code','constructionYear','order']],
+                    columns =['propertySituationIdf','capakey','street_situation','divCad','section','primaryNumber','bisNumber','exponentLetter', 'exponentNumber','articleNumber','articleOrder','surfaceTaxable','soilRent','cadastralIncome','street_code','constructionYear','daa','order'])
 
 prc['articleNumber'] = pd.to_numeric(prc['articleNumber'], errors = 'coerce')
 prc['articleNumber'] = prc['articleNumber'].fillna(0).astype(int)
@@ -97,12 +98,17 @@ prc.loc[:,'prc'] = prc.prc.str.replace(' $', '') # retirer l'espace à la fin du
 
 capa = gpd.read_file (path_to_plan + "/B_CaPa.shp")
 map = pd.DataFrame (capa, columns = ['CAPAKEY', 'geometry'])
+
+
 map.CAPAKEY = map.CAPAKEY.astype (str)
 prc.capakey = prc.capakey.astype (str)
 
 map = map.merge (prc.drop_duplicates(subset = ['capakey']), how = 'left', left_on = 'CAPAKEY', right_on = 'capakey' )
 map = map.merge (pe.drop_duplicates (subset = ['propertySituationIdf']), how = 'left', left_on = 'propertySituationIdf', right_on = 'propertySituationIdf')
 map.rename (columns = {'street_situation': 'sl1'}, inplace = True)
+
+
+
 
 # EXPORT CSV
 # --------------- DA -------------------
@@ -121,7 +127,12 @@ prc.to_csv (path_to_data + '/o_prc.csv', sep='|', columns=['capakey', 'daa', 'or
 
 # --------------- MAP -------------------
 print ('Génération de MAP.csv')
-map.to_csv (path_to_data + '/o_map.csv', sep='|', columns=['capakey', 'pe', 'adr1','adr2','sl1','prc','na1'])
+#map = map.apply(lambda x: x.str.strip() if isinstance(x, str) else x).replace('', np.nan)
+#map = map.dropna(how='all')
+#map.rename(columns = {'capakey': 'capakey_prc'}, inplace = True)
+#map.rename(columns = {'CAPAKEY': 'capakey'}, inplace = T)
+map = map.loc[map['CAPAKEY'] != 'DP']
+map.to_csv (path_to_data + '/o_map.csv', sep='|', columns=['capakey', 'pe', 'adr1','adr2','sl1','prc','na1', 'CAPAKEY'])
 
 # --------------- CAPA -------------------
 print ('Génération de B_CAPA.shp')

@@ -22,6 +22,8 @@ CREATE TABLE public.map
     cadapli character varying(16)
 );
 
+ALTER TABLE map ADD PRIMARY KEY(capakey);
+
 DROP INDEX IF EXISTS public.map_capakey_idx;
 
 CREATE INDEX map_capakey_idx

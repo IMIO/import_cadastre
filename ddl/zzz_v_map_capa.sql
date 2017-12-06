@@ -5,7 +5,9 @@ DROP INDEX IF EXISTS vmapcapa_the_geom_gist;
 DROP INDEX IF EXISTS vmapcapa_codeparcelle_idx;
 
 CREATE MATERIALIZED VIEW public.v_map_capa AS
- SELECT map.capakey,
+ SELECT
+    ROW_NUMBER() OVER (ORDER BY map.capakey ASC) AS ROW_NUMBER,
+    map.capakey,
     map.capakey AS codeparcelle,
     map.urbainkey,
     prc.daa,
@@ -50,7 +52,6 @@ CREATE MATERIALIZED VIEW public.v_map_capa AS
            FROM pe
           WHERE pe.daa = prc.daa
           ORDER BY pe.pos), '; '::text));
-
 
 CREATE INDEX vmapcapa_the_geom_gist ON public.v_map_capa USING gist (the_geom);
 CREATE INDEX vmapcapa_codeparcelle_idx
