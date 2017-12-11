@@ -2,7 +2,7 @@ Prérequis:
 ==========
 
  - python3-dev
- - CREATE EXTENTION postgis;
+ - CREATE EXTENSION postgis;
 
 Variables d'environnement :
 ===========================
