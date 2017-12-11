@@ -89,11 +89,13 @@ def main():
     path_to_canu = os.path.join(path_to_data, "Plan/B_CaNu.shp")
     path_to_geli = os.path.join(path_to_data, "Plan/B_GeLi.shp")
     path_to_gepn = os.path.join(path_to_data, "Plan/B_GePn.shp")
+    path_to_gept = os.path.join(path_to_data, "Plan/B_GePt.shp")
     path_to_inli = os.path.join(path_to_data, "Plan/B_InLi.shp")
     path_to_inpt = os.path.join(path_to_data, "Plan/B_InPt.shp")
     path_to_toli = os.path.join(path_to_data, "Plan/B_ToLi.shp")
     path_to_topt = os.path.join(path_to_data, "Plan/B_ToPt.shp")
     path_to_mu = os.path.join(path_to_data, "Plan/A_AdMu.shp")
+
 
     cadutils.checkFile(path_to_da)
     cadutils.checkFile(path_to_map)
@@ -145,6 +147,10 @@ def main():
 
     load_shapefile(conn, "gepn", path_to_gepn, [
         'GEPNTY', 'GEPNNA', 'SHEET'
+    ])
+
+    load_shapefile(conn, "gept", path_to_gept, [
+        'GEPTTY', 'GEPTNA', 'SHEET'
     ])
 
     load_shapefile(conn, "inli", path_to_inli, [
