@@ -127,11 +127,10 @@ prc.to_csv (path_to_data + '/o_prc.csv', sep='|', columns=['capakey', 'daa', 'or
 
 # --------------- MAP -------------------
 print ('Génération de MAP.csv')
-#map = map.apply(lambda x: x.str.strip() if isinstance(x, str) else x).replace('', np.nan)
-#map = map.dropna(how='all')
-#map.rename(columns = {'capakey': 'capakey_prc'}, inplace = True)
-#map.rename(columns = {'CAPAKEY': 'capakey'}, inplace = T)
-map = map.loc[map['CAPAKEY'] != 'DP']
+
+#map = map.loc[map['CAPAKEY'] != 'DP'] #Pepinster has DP in capakey ..
+map = map.loc[map['capakey'].str.len() == 17] #Get only capakey
+# Attention Il exisiste des capakey sans PRC lié sur soignies
 map.to_csv (path_to_data + '/o_map.csv', sep='|', columns=['capakey', 'pe', 'adr1','adr2','sl1','prc','na1', 'CAPAKEY'])
 
 # --------------- CAPA -------------------
