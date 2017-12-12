@@ -93,7 +93,7 @@ print ("\nConversion natures ...")
 # perf problems
 prc.loc[:,'na1'] = dP.loc[:,'nature'].apply (lambda x:natureF[natureF.nature == x].nature_name.values[0])
 prc['prc'] = prc['section'].astype (str) + ' ' + prc['primaryNumber'].astype(str) \
-            + ' ' + prc['bisNumber'].astype(str) + ' '+ prc['exponentLetter'].astype(str) + ' ' + prc['exponentNumber'].astype(str)
+            + '  ' + prc['bisNumber'].astype(str) + ' ' + prc['exponentLetter'].astype(str) + ' ' + prc['exponentNumber'].astype(str)
 prc.loc[:,'prc'] = prc.prc.str.replace(' $', '') # retirer l'espace à la fin du nom isolé
 
 capa = gpd.read_file (path_to_plan + "/B_CaPa.shp")
