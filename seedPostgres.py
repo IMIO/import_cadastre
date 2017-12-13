@@ -46,7 +46,7 @@ def create_tables(conn):
 def refresh_materialized_view(conn):
     print(" *Loading v_map_capa (materialized view) with fresh data")
     cur = conn.cursor()
-    cur.execute("REFRESH MATERIALIZED VIEW v_map_capa")
+    cur.execute("REFRESH MATERIALIZED VIEW vm_map_capa")
     conn.commit()
 
 def check_postgis():
@@ -109,6 +109,7 @@ def main():
     user_password = os.environ["CAD_DB_USER_PASSWORD"]
 
     conn = psycopg2.connect("host=%s dbname=%s user=%s password=%s" % (pg_host, database_name, user_name, user_password))
+
     check_postgis()
 
     print("* \n Creating tables \n")
@@ -116,14 +117,17 @@ def main():
     print("* \n Loading tables \n")
 
     copy_from_csv_to_postgres_inserts(conn, path_to_da, "da", [
-        "da", "divname"
+        "da", "divname", "dan1"
     ], sep="|")
+
     copy_from_csv_to_postgres_inserts(conn, path_to_map, "map", [
         "capakey", "pe", "adr1", "adr2", "sl1", "prc", "na1"
     ], sep="|")
+
     copy_from_csv_to_postgres_inserts(conn, path_to_pe, "pe", [
         "pe", "adr1", "adr2", "daa"
     ], sep="|")
+
     copy_from_csv_to_postgres_inserts(conn, path_to_prc, "prc", [
         "capakey", "daa", "sl1", "prc", "na1","co1","ha1","ri1","rscod","ord"
     ], sep="|")

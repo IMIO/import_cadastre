@@ -1,10 +1,10 @@
 -- View: public.v_map_capa
 
-DROP MATERIALIZED VIEW IF EXISTS public.v_map_capa;
-DROP INDEX IF EXISTS vmapcapa_the_geom_gist;
-DROP INDEX IF EXISTS vmapcapa_codeparcelle_idx;
+DROP MATERIALIZED VIEW IF EXISTS public.vm_map_capa;
+DROP INDEX IF EXISTS vmmapcapa_the_geom_gist;
+DROP INDEX IF EXISTS vmmapcapa_codeparcelle_idx;
 
-CREATE MATERIALIZED VIEW public.v_map_capa AS
+CREATE MATERIALIZED VIEW public.vm_map_capa AS
  SELECT
     ROW_NUMBER() OVER (ORDER BY map.capakey ASC) AS ROW_NUMBER,
     map.capakey,
@@ -53,7 +53,7 @@ CREATE MATERIALIZED VIEW public.v_map_capa AS
           WHERE pe.daa = prc.daa
           ORDER BY pe.pos), '; '::text));
 
-CREATE INDEX vmapcapa_the_geom_gist ON public.v_map_capa USING gist (the_geom);
-CREATE INDEX vmapcapa_codeparcelle_idx
-    ON public.v_map_capa USING btree
+CREATE INDEX vmmapcapa_the_geom_gist ON public.vm_map_capa USING gist (the_geom);
+CREATE INDEX vmmapcapa_codeparcelle_idx
+    ON public.vm_map_capa USING btree
     (codeparcelle );

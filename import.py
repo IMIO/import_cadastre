@@ -64,6 +64,7 @@ natureF = pd.read_excel (fileparcels[0], sheet_name=u'Nature',
 
 da = pd.DataFrame(data = dP.divCad.unique(), columns = ['divCad'])
 da['divName'] = da['divCad'].apply (lambda x:divCadF[divCadF.divCad == x].divName.values[0])
+da['dan1'] = da['divName']
 print ('Divisions gérées: ')
 for sections in da.loc[:,'divName'].values :
  print (sections)
@@ -114,7 +115,7 @@ map.rename (columns = {'street_situation': 'sl1'}, inplace = True)
 # --------------- DA -------------------
 print ('Génération de DA.csv')
 da.rename (columns = {'divCad': 'da', 'divName':'divname'}, inplace = True)
-da.to_csv (path_to_data + '/o_da.csv', sep='|', columns=['da','divname'])
+da.to_csv (path_to_data + '/o_da.csv', sep='|', columns=['da','divname','dan1'])
 
 # --------------- PE -------------------
 print ('Génération de PE.csv')
