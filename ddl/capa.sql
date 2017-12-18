@@ -23,7 +23,7 @@ CREATE TABLE public.capa
     section character varying(1),
     radical integer,
     exposant character varying(5),
-    bis character varying(1),
+    bis character varying(2),
     puissance character varying(1),
     CONSTRAINT enforce_dims_the_geom CHECK (st_ndims(the_geom) = 2),
     --CONSTRAINT enforce_geotype_the_geom CHECK (geometrytype(the_geom) = 'MULTIPOLYGON'::text OR the_geom IS NULL),
