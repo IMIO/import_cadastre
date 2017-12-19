@@ -92,7 +92,18 @@ prc.rename (columns = {'daa': 'daa_prc', 'articleOrder' : 'prc_ord'}, inplace = 
 
 print ("\nConversion natures ...")
 # perf problems
-prc.loc[:,'na1'] = dP.loc[:,'nature'].apply (lambda x:natureF[natureF.nature == x].nature_name.values[0])
+def getNatureNameFromIndex(natureIndex):
+    natureItem = natureF[natureF.nature == natureIndex]
+
+    if not natureItem.empty:
+        return natureItem.nature_name.values[0]
+    else:
+        print("Erreur lors de la récupération de la valeur de nature pour le code %s . Il faut vérifier export_parcels.xlsx page nature" % natureIndex)
+        return str(natureIndex)
+
+#prc.loc[:,'na1'] = dP.loc[:,'nature'].apply (lambda x:natureF[natureF.nature == x].nature_name.values[0])
+
+prc.loc[:,'na1'] = dP.loc[:,'nature'].apply(getNatureNameFromIndex)
 prc['prc'] = prc['section'].astype (str) + ' ' + prc['primaryNumber'].astype(str) \
             + '  ' + prc['bisNumber'].astype(str) + ' ' + prc['exponentLetter'].astype(str) + ' ' + prc['exponentNumber'].astype(str)
 prc.loc[:,'prc'] = prc.prc.str.replace(' $', '') # retirer l'espace à la fin du nom isolé

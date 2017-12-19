@@ -6,8 +6,8 @@ CREATE TABLE public.pe
     cod character varying(30),
     daa double precision,
     pos smallint,
-    adr1 character varying(60),
-    adr2 character varying(88),
+    adr1 character varying(255),
+    adr2 character varying(255),
     lt character varying(4),
     dr character varying(90),
     dr2 character varying(6)

@@ -15,7 +15,7 @@ CREATE TABLE public.gepn
 (
     gid integer NOT NULL DEFAULT nextval('gepn_gid_seq'),
     gepnty character varying(2),
-    gepnna character varying(50),
+    gepnna character varying(255),
     sheet character varying(18),
     the_geom geometry,
     CONSTRAINT gepn_pkey PRIMARY KEY (gid),

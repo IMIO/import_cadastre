@@ -16,7 +16,7 @@ CREATE TABLE public.topt
     gid integer NOT NULL DEFAULT nextval('topt_gid_seq'),
     toptty character varying(2),
     toptan double precision,
-    topttx character varying(100),
+    topttx character varying(255),
     sheet character varying(18),
     the_geom geometry,
     CONSTRAINT topt_pkey PRIMARY KEY (gid),
