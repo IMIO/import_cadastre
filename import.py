@@ -81,8 +81,8 @@ pe.loc[:,'daa'] = dO['divCad']*100000 + dO['articleNumber']
 pe.loc[:,"adr1"] = dO['zipCode'].str.cat (dO['municipality_fr'], sep = ' ')
 pe.loc[:,'adr2'] = dO['street_fr'].str.cat (dO['number'], sep = ' ')
 
-prc = pd.DataFrame (dP[['propertySituationIdf','capakey','street_situation','divCad','section','primaryNumber','bisNumber','exponentLetter','exponentNumber','articleNumber','articleOrder','surfaceTaxable','soilRent','cadastralIncome','street_code','constructionYear','order']],
-                    columns =['propertySituationIdf','capakey','street_situation','divCad','section','primaryNumber','bisNumber','exponentLetter', 'exponentNumber','articleNumber','articleOrder','surfaceTaxable','soilRent','cadastralIncome','street_code','constructionYear','daa','order'])
+prc = pd.DataFrame (dP[['propertySituationIdf','capakey','street_situation','divCad','section','primaryNumber','bisNumber','exponentLetter','exponentNumber','articleNumber','articleOrder','surfaceTaxable','soilRent','cadastralIncome','street_code','constructionYear','order','number']],
+                    columns =['propertySituationIdf','capakey','street_situation','divCad','section','primaryNumber','bisNumber','exponentLetter', 'exponentNumber','articleNumber','articleOrder','surfaceTaxable','soilRent','cadastralIncome','street_code','constructionYear','daa','order','number'])
 
 prc['articleNumber'] = pd.to_numeric(prc['articleNumber'], errors = 'coerce')
 prc['articleNumber'] = prc['articleNumber'].fillna(0).astype(int)
@@ -108,6 +108,7 @@ prc['prc'] = prc['section'].astype (str) + ' ' + prc['primaryNumber'].astype(str
             + '  ' + prc['bisNumber'].astype(str) + ' ' + prc['exponentLetter'].astype(str) + ' ' + prc['exponentNumber'].astype(str)
 prc.loc[:,'prc'] = prc.prc.str.replace(' $', '') # retirer l'espace à la fin du nom isolé
 
+prc['street_situation'] = prc['street_situation'].astype(str) + ' ' + prc['number'].astype(str)
 capa = gpd.read_file (path_to_plan + "/B_CaPa.shp")
 map = pd.DataFrame (capa, columns = ['CAPAKEY', 'geometry'])
 
