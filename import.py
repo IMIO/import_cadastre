@@ -69,8 +69,8 @@ print ('Divisions gérées: ')
 for sections in da.loc[:,'divName'].values :
  print (sections)
 pe = pd.DataFrame(
-    dO[['propertySituationIdf','name','firstname','articleOrder']],
-    columns =['propertySituationIdf','name', 'firstname', 'articleOrder', 'pe','daa','adr1','adr2'] )
+    dO[['propertySituationIdf','order','name','firstname','articleOrder']],
+    columns =['propertySituationIdf','order','name', 'firstname', 'articleOrder', 'pe','daa','adr1','adr2'] )
 pe.loc[:,['pe']] = pe.name.str.cat (pe.firstname.astype(str), sep =', ' ) # pe = nom, prénom
 pe.loc[:,'pe'] = pe.pe.str.replace('[,] $', '') # retirer la virgule à la fin du nom isolé
 
@@ -80,6 +80,7 @@ dO['articleNumber'] = dO['articleNumber'].fillna(0).astype(int)  # met 0 si NaN
 pe.loc[:,'daa'] = dO['divCad']*100000 + dO['articleNumber']
 pe.loc[:,"adr1"] = dO['zipCode'].str.cat (dO['municipality_fr'], sep = ' ')
 pe.loc[:,'adr2'] = dO['street_fr'].str.cat (dO['number'], sep = ' ')
+pe.rename(columns = {'order':'pos', 'articleOrder' : 'lt'}, inplace = True)
 
 prc = pd.DataFrame (dP[['propertySituationIdf','capakey','street_situation','divCad','section','primaryNumber','bisNumber','exponentLetter','exponentNumber','articleNumber','articleOrder','surfaceTaxable','soilRent','cadastralIncome','street_code','constructionYear','order','number']],
                     columns =['propertySituationIdf','capakey','street_situation','divCad','section','primaryNumber','bisNumber','exponentLetter', 'exponentNumber','articleNumber','articleOrder','surfaceTaxable','soilRent','cadastralIncome','street_code','constructionYear','daa','order','number'])
@@ -131,7 +132,7 @@ da.to_csv (path_to_data + '/o_da.csv', sep='|', columns=['da','divname','dan1'])
 
 # --------------- PE -------------------
 print ('Génération de PE.csv')
-pe.to_csv (path_to_data + '/o_pe.csv', sep='|', columns=['pe', 'adr1', 'adr2','daa'])
+pe.to_csv (path_to_data + '/o_pe.csv', sep='|', columns=['pe', 'pos','adr1', 'adr2','daa','lt'])
 
 # --------------- PRC -------------------
 print ('Génération de PRC.csv')

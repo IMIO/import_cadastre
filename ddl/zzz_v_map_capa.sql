@@ -35,15 +35,15 @@ CREATE MATERIALIZED VIEW public.vm_map_capa AS
     prc.rscod,
     array_to_string(ARRAY( SELECT pe.pe
            FROM pe
-          WHERE pe.daa = prc.daa
+          WHERE pe.daa = prc.daa and pe.lt = prc.ord
           ORDER BY pe.pos), '; '::text) AS pe,
     array_to_string(ARRAY( SELECT pe.adr1
            FROM pe
-          WHERE pe.daa = prc.daa
+          WHERE pe.daa = prc.daa and pe.lt = prc.ord
           ORDER BY pe.pos), '; '::text) AS adr1,
     array_to_string(ARRAY( SELECT pe.adr2
            FROM pe
-          WHERE pe.daa = prc.daa
+          WHERE pe.daa = prc.daa and pe.lt = prc.ord
           ORDER BY pe.pos), '; '::text) AS adr2
    FROM map
      JOIN capa ON map.capakey::text = capa.capakey::text
@@ -51,6 +51,7 @@ CREATE MATERIALIZED VIEW public.vm_map_capa AS
   ORDER BY map.capakey, map.sl1, (array_to_string(ARRAY( SELECT pe.pe
            FROM pe
           WHERE pe.daa = prc.daa
+          and pe.lt = prc.ord
           ORDER BY pe.pos), '; '::text));
 
 CREATE INDEX vmmapcapa_the_geom_gist ON public.vm_map_capa USING gist (the_geom);

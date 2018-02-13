@@ -125,7 +125,7 @@ def main():
     ], sep="|")
 
     copy_from_csv_to_postgres_inserts(conn, path_to_pe, "pe", [
-        "pe", "adr1", "adr2", "daa"
+        "pe", "adr1", "adr2", "daa","lt","pos"
     ], sep="|")
 
     copy_from_csv_to_postgres_inserts(conn, path_to_prc, "prc", [
