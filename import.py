@@ -150,8 +150,8 @@ map.to_csv (path_to_data + '/o_map.csv', sep='|', columns=['capakey', 'pe', 'adr
 # --------------- CAPA -------------------
 print ('Génération de B_CAPA.shp')
 map.rename (columns = {'divCad':'da', 'primaryNumber':'radical','bisNumber':'bis'}, inplace = True)
-map['exposant'] = map['exponentLetter'] + ' ' + map['exponentNumber']
-capa['puissance'] = ''
+map['exposant'] = map['exponentLetter']
+capa['puissance'] = map['exponentNumber']
 capa =  capa.merge (map.loc[:,['CAPAKEY','da','section','radical','exposant','bis']].drop_duplicates(subset = ['CAPAKEY']), how = 'left', left_on = 'CAPAKEY', right_on = 'CAPAKEY' )
 capa.to_file (path_to_data + "/OB_CaPa.shp")
 print ('Procédure terminée\n')
