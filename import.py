@@ -69,10 +69,12 @@ print ('Divisions gérées: ')
 for sections in da.loc[:,'divName'].values :
  print (sections)
 pe = pd.DataFrame(
-    dO[['propertySituationIdf','order','name','firstname','articleOrder']],
-    columns =['propertySituationIdf','order','name', 'firstname', 'articleOrder', 'pe','daa','adr1','adr2'] )
+    dO[['propertySituationIdf','order','name','firstname','name_partner','firstName_partner','articleOrder']],
+    columns =['propertySituationIdf','order','name', 'firstname', 'name_partner','firstName_partner','articleOrder', 'pe','daa','adr1','adr2'] )
 pe.loc[:,['pe']] = pe.name.str.cat (pe.firstname.astype(str), sep =', ' ) # pe = nom, prénom
+pe.loc[:,['pe']] = pe.pe.astype(str) + '(cj.' +  pe.name_partner.astype(str) + ', ' + pe.firstName_partner.astype(str) + ')' # pe = nom, prénom
 pe.loc[:,'pe'] = pe.pe.str.replace('[,] $', '') # retirer la virgule à la fin du nom isolé
+pe.loc[:,'pe'] = pe.pe.str.replace('\\(cj., \\)', '')
 
 dO['articleNumber'] = pd.to_numeric(dO['articleNumber'], errors ='coerce')  # crée des NaN si rien dans le champ
 dO['articleNumber'] = dO['articleNumber'].fillna(0).astype(int)  # met 0 si NaN
@@ -105,7 +107,7 @@ def getNatureNameFromIndex(natureIndex):
 #prc.loc[:,'na1'] = dP.loc[:,'nature'].apply (lambda x:natureF[natureF.nature == x].nature_name.values[0])
 
 prc.loc[:,'na1'] = dP.loc[:,'nature'].apply(getNatureNameFromIndex)
-prc['prc'] = prc['section'].astype (str) + ' ' + prc['primaryNumber'].astype(str) \
+prc['prc'] = prc['section'].astype(str) + ' ' + prc['primaryNumber'].astype(str) \
             + '  ' + prc['bisNumber'].astype(str) + ' ' + prc['exponentLetter'].astype(str) + ' ' + prc['exponentNumber'].astype(str)
 prc.loc[:,'prc'] = prc.prc.str.replace(' $', '') # retirer l'espace à la fin du nom isolé
 
