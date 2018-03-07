@@ -32,7 +32,7 @@ cadutils.checkPath(path_to_matrice_doc)
 cadutils.checkPath(path_to_plan)
 
 dO = pd.read_csv(path_to_matrice + '/Owner.csv', sep = ';', header=0, encoding ='latin_1', na_filter=False, dtype={"articleOrder": str})
-dP = pd.read_csv(path_to_matrice + '/Parcel.csv', sep = ';', header=0, encoding = 'latin_1', na_filter= False)
+dP = pd.read_csv(path_to_matrice + '/Parcel.csv', sep = ';', header=0, encoding = 'latin_1', na_filter= False, dtype={"articleOrder": str})
 
 def convDivName (s):
     numDiv = re.findall('\d+', s)
