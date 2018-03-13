@@ -73,8 +73,9 @@ pe = pd.DataFrame(
     columns =['propertySituationIdf','order','name', 'firstname', 'name_partner','firstName_partner','articleOrder', 'pe','daa','adr1','adr2'] )
 pe.loc[:,['pe']] = pe.name.str.cat (pe.firstname.astype(str), sep =', ' ) # pe = nom, prénom
 pe.loc[:,['pe']] = pe.pe.astype(str) + '(cj.' +  pe.name_partner.astype(str) + ', ' + pe.firstName_partner.astype(str) + ')' # pe = nom, prénom
-pe.loc[:,'pe'] = pe.pe.str.replace('[,] $', '') # retirer la virgule à la fin du nom isolé
 pe.loc[:,'pe'] = pe.pe.str.replace('\\(cj., \\)', '')
+pe.loc[:,'pe'] = pe.pe.str.replace('[,] $', '') # retirer la virgule à la fin du nom isolé
+
 
 dO['articleNumber'] = pd.to_numeric(dO['articleNumber'], errors ='coerce')  # crée des NaN si rien dans le champ
 dO['articleNumber'] = dO['articleNumber'].fillna(0).astype(int)  # met 0 si NaN
