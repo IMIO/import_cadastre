@@ -91,6 +91,16 @@ prc = pd.DataFrame (dP[['propertySituationIdf','capakey','street_situation','div
 prc['articleNumber'] = pd.to_numeric(prc['articleNumber'], errors = 'coerce')
 prc['articleNumber'] = prc['articleNumber'].fillna(0).astype(int)
 
+prc['bisNumber'] = pd.to_numeric(prc['bisNumber'], errors = 'coerce')
+prc['bisNumber'] = prc['bisNumber'].fillna(0).astype(int)
+
+prc['primaryNumber'] = pd.to_numeric(prc['primaryNumber'], errors = 'coerce')
+prc['primaryNumber'] = prc['primaryNumber'].fillna(0).astype(int)
+
+prc['exponentNumber'] = pd.to_numeric(prc['exponentNumber'], errors = 'coerce')
+prc['exponentNumber'] = prc['exponentNumber'].fillna(0).astype(int)
+
+
 prc['daa'] = prc[['divCad']]*100000 + prc[['articleNumber']].values
 prc.rename (columns = {'daa': 'daa_prc', 'articleOrder' : 'prc_ord'}, inplace = True)
 
@@ -108,8 +118,11 @@ def getNatureNameFromIndex(natureIndex):
 #prc.loc[:,'na1'] = dP.loc[:,'nature'].apply (lambda x:natureF[natureF.nature == x].nature_name.values[0])
 
 prc.loc[:,'na1'] = dP.loc[:,'nature'].apply(getNatureNameFromIndex)
-prc['prc'] = prc['section'].astype(str) + ' ' + prc['primaryNumber'].astype(str) \
-            + '  ' + prc['bisNumber'].astype(str) + ' ' + prc['exponentLetter'].astype(str) + ' ' + prc['exponentNumber'].astype(str)
+
+prc['prc'] = prc.apply(lambda x:'%s%4d/%02d%s%2d' % (x['section'],x['primaryNumber'],x['bisNumber'],x['exponentLetter'],x['exponentNumber']),axis=1)
+
+prc.loc[:,'prc'] = prc.prc.str.replace('/00', '   ') #Remove 0 BisNumber
+prc.loc[:,'prc'] = prc.prc.str.replace(' 0$', '') #Remove 0 exponentNumber
 prc.loc[:,'prc'] = prc.prc.str.replace(' $', '') # retirer l'espace à la fin du nom isolé
 
 prc['street_situation'] = prc['street_situation'].astype(str) + ' ' + prc['number'].astype(str)
