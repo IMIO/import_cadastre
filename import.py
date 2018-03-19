@@ -119,7 +119,7 @@ def getNatureNameFromIndex(natureIndex):
 
 prc.loc[:,'na1'] = dP.loc[:,'nature'].apply(getNatureNameFromIndex)
 
-prc['prc'] = prc.apply(lambda x:'%s%4d/%02d%s%2d' % (x['section'],x['primaryNumber'],x['bisNumber'],x['exponentLetter'],x['exponentNumber']),axis=1)
+prc['prc'] = prc.apply(lambda x:'%s%4d/%02d%s%3d' % (x['section'],x['primaryNumber'],x['bisNumber'],x['exponentLetter'],x['exponentNumber']),axis=1)
 
 prc.loc[:,'prc'] = prc.prc.str.replace('/00', '   ') #Remove 0 BisNumber
 prc.loc[:,'prc'] = prc.prc.str.replace(' 0$', '') #Remove 0 exponentNumber
