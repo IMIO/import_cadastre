@@ -16,7 +16,7 @@ CREATE TABLE public.gept
 (
     gid integer NOT NULL DEFAULT nextval('gept_gid_seq'::regclass),
     geptty character varying(2),
-    geptna character varying(50),
+    geptna character varying(100),
     sheet character varying(18),
     the_geom geometry,
     CONSTRAINT gept_pkey PRIMARY KEY (gid),
