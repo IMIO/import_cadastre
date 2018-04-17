@@ -97,8 +97,19 @@ pe.loc[:,"adr1"] = dO['zipCode'].str.cat (dO['municipality_fr'], sep = ' ')
 pe.loc[:,'adr2'] = dO['street_fr'].str.cat (dO['number'], sep = ' ')
 pe.rename(columns = {'order':'pos', 'articleOrder' : 'lt'}, inplace = True)
 
-prc = pd.DataFrame (dP[['propertySituationIdf','capakey','street_situation','divCad','section','primaryNumber','bisNumber','exponentLetter','exponentNumber','articleNumber','articleOrder','surfaceTaxable','soilRent','cadastralIncome','street_code','constructionYear','order','number']],
-                    columns =['propertySituationIdf','capakey','street_situation','divCad','section','primaryNumber','bisNumber','exponentLetter', 'exponentNumber','articleNumber','articleOrder','surfaceTaxable','soilRent','cadastralIncome','street_code','constructionYear','daa','order','number'])
+prc = pd.DataFrame (dP[['propertySituationIdf','capakey','street_situation',
+                        'divCad','section','primaryNumber','bisNumber',
+                        'exponentLetter','exponentNumber','articleNumber',
+                        'articleOrder','surfaceTaxable','soilRent',
+                        'cadastralIncome','street_code','constructionYear',
+                        'order','number']],
+                    columns =['propertySituationIdf','capakey',
+                              'street_situation','divCad','section',
+                              'primaryNumber','bisNumber','exponentLetter',
+                              'exponentNumber','articleNumber','articleOrder',
+                              'surfaceTaxable','soilRent','cadastralIncome',
+                              'street_code','constructionYear','daa','order',
+                              'number'])
 
 prc['articleNumber'] = pd.to_numeric(prc['articleNumber'], errors = 'coerce')
 prc['articleNumber'] = prc['articleNumber'].fillna(0).astype(int)
@@ -117,7 +128,7 @@ prc['daa'] = prc[['divCad']]*100000 + prc[['articleNumber']].values
 prc.rename (columns = {'daa': 'daa_prc', 'articleOrder' : 'prc_ord'}, inplace = True)
 
 print ("\nConversion natures ...")
-# perf problems
+
 def getNatureNameFromIndex(natureIndex):
     natureItem = natureF[natureF.nature == natureIndex]
 
@@ -131,7 +142,12 @@ def getNatureNameFromIndex(natureIndex):
 
 prc.loc[:,'na1'] = dP.loc[:,'nature'].apply(getNatureNameFromIndex)
 
-prc['prc'] = prc.apply(lambda x:'%s%4d/%02d%s%3d' % (x['section'],x['primaryNumber'],x['bisNumber'],x['exponentLetter'],x['exponentNumber']),axis=1)
+prc['prc'] = prc.apply(lambda x:'%s%4d/%02d%s%3d' % (x['section'],
+                                                     x['primaryNumber'],
+                                                     x['bisNumber'],
+                                                     x['exponentLetter'],
+                                                     x['exponentNumber']),
+                       axis=1)
 
 prc.loc[:,'prc'] = prc.prc.str.replace('/00', '   ') #Remove 0 BisNumber
 prc.loc[:,'prc'] = prc.prc.str.replace(' 0$', '') #Remove 0 exponentNumber
@@ -164,8 +180,13 @@ pe.to_csv (path_to_data + '/o_pe.csv', sep='|', columns=['pe', 'pos','adr1', 'ad
 
 # --------------- PRC -------------------
 print ('Génération de PRC.csv')
-prc.rename (columns = {'street_situation': 'sl1', 'daa_prc':'daa', 'prc_ord': 'ord', 'surfaceTaxable': 'co1', 'soilRent': 'ha1', 'cadastralIncome': 'ri1', 'street_code' : 'rscod', 'constructionYear':'acj'}, inplace = True)
-prc.to_csv (path_to_data + '/o_prc.csv', sep='|', columns=['capakey', 'daa', 'ord', 'sl1', 'prc','na1','co1' , 'ha1', 'ri1', 'rscod'])
+prc.rename (columns = {'street_situation': 'sl1', 'daa_prc':'daa',
+                       'prc_ord': 'ord', 'surfaceTaxable': 'co1',
+                       'soilRent': 'ha1', 'cadastralIncome': 'ri1',
+                       'street_code' : 'rscod',
+                       'constructionYear':'acj'}, inplace = True)
+prc.to_csv (path_to_data + '/o_prc.csv', sep='|',
+            columns=['capakey', 'daa', 'ord', 'sl1', 'prc','na1','co1' , 'ha1', 'ri1', 'rscod'])
 
 # --------------- MAP -------------------
 print ('Génération de MAP.csv')
@@ -173,13 +194,15 @@ print ('Génération de MAP.csv')
 #map = map.loc[map['CAPAKEY'] != 'DP'] #Pepinster has DP in capakey ..
 map = map.loc[map['capakey'].str.len() == 17] #Get only capakey
 # Attention Il exisiste des capakey sans PRC lié sur soignies
-map.to_csv (path_to_data + '/o_map.csv', sep='|', columns=['capakey', 'pe', 'adr1','adr2','sl1','prc','na1', 'CAPAKEY'])
+map.to_csv (path_to_data + '/o_map.csv', sep='|',
+            columns=['capakey', 'pe', 'adr1','adr2','sl1','prc','na1', 'CAPAKEY'])
 
 # --------------- CAPA -------------------
 print ('Génération de B_CAPA.shp')
 map.rename (columns = {'divCad':'da', 'primaryNumber':'radical','bisNumber':'bis'}, inplace = True)
 map['exposant'] = map['exponentLetter']
 capa['puissance'] = map['exponentNumber']
-capa =  capa.merge (map.loc[:,['CAPAKEY','da','section','radical','exposant','bis']].drop_duplicates(subset = ['CAPAKEY']), how = 'left', left_on = 'CAPAKEY', right_on = 'CAPAKEY' )
+capa =  capa.merge (map.loc[:,['CAPAKEY','da','section','radical',
+                               'exposant','bis']].drop_duplicates(subset = ['CAPAKEY']), how = 'left', left_on = 'CAPAKEY', right_on = 'CAPAKEY' )
 capa.to_file (path_to_data + "/OB_CaPa.shp")
 print ('Procédure terminée\n')
