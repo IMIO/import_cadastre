@@ -1,12 +1,15 @@
 # -- coding: utf-8 --
-
+#  DO NOT USE --- VERSION UNSTABLE AND INCOMPLETE
+# Recuperation historique des mutations (2017+)
 # Conversion fichiers cadastre Urbain (2016+) vers tables utilisée par Urban
 #  génération du shape file b_capa avec les coordonnées de la parcelle
 #  Prérequis : Installation de pandas + geopandas + python 3.x
 #  Utilisation : décompacter le ficher Urbain.
-#                Indiquer le chemin du dossier dans lequel figurent les sous-dossier Matrice/Plan dans path_to_data
-# le programme génère o_da.csv, o_pe.csv, o_prc.csv, o_map.csv, o_capa.shp qu'il faut remonter ensuite dans postgres
-# AA
+#                Indiquer le chemin du dossier dans lequel figurent les
+#                sous-dossier Matrice/Plan dans path_to_data
+# le programme génère o_da.csv, o_pe.csv, o_prc.csv, o_map.csv,
+#                     o_capa.shp qu'il faut remonter ensuite dans postgres
+# TEST TEST
 
 import re
 import glob
@@ -14,28 +17,33 @@ import pandas as pd
 import geopandas as gpd
 import os
 import sys
-import numpy as np
+#   import numpy as np
 
 import cadutils
 
-if os.environ["CADASTREDIR"] == "" :
+if os.environ["CADASTREDIR"] == "":
     print("Environment variable CADASTREDIR must be set and pointing to a directory")
     sys.exit(0)
 
 path_to_data = os.environ["CADASTREDIR"]
 
-path_to_matrice = os.path.join(path_to_data,"Matrice")
-path_to_matrice_doc = os.path.join(path_to_data,"Matrice_doc")
-path_to_plan = os.path.join(path_to_data,"Plan")
+path_to_matrice = os.path.join(path_to_data, "Matrice")
+path_to_matrice_doc = os.path.join(path_to_data, "Matrice_doc")
+path_to_plan = os.path.join(path_to_data, "Plan")
 
 cadutils.checkPath(path_to_matrice)
 cadutils.checkPath(path_to_matrice_doc)
 cadutils.checkPath(path_to_plan)
 
-dO = pd.read_csv(path_to_matrice + '/Owner.csv', sep = ';', header=0, encoding ='latin_1', na_filter=False, dtype={"articleOrder": str})
-dP = pd.read_csv(path_to_matrice + '/Parcel.csv', sep = ';', header=0, encoding = 'latin_1', na_filter= False, dtype={"articleOrder": str})
+dO = pd.read_csv(path_to_matrice + '/Owner.csv', sep=';',
+                 header=0, encoding='latin_1', na_filter=False,
+                 dtype={"articleOrder": str})
+dP = pd.read_csv(path_to_matrice + '/Parcel.csv', sep=';',
+                 header=0, encoding='latin_1', na_filter=False,
+                 dtype={"articleOrder": str})
 
-def convDivName (s):
+
+def convDivName(s):
     numDiv = re.findall('\d+', s)
     if len(numDiv) != 0:
         numDiv = int(numDiv[0])
@@ -53,15 +61,18 @@ def convDivName (s):
     prop = prop.capitalize()
     return (prop)
 
+
 # Récupération du nom de la division de la parcelle
 fileparcels = glob.glob(path_to_matrice_doc+"/OUTPUT PARCELS*.xlsx")
-divCadF = pd.read_excel (fileparcels[0], sheet_name=u'divCad ',
-                        skiprows= 1, names = ['divCad', 'divName_o']).assign (divName='' )
-divCadF['divName'] = divCadF['divName_o'].apply (lambda x: convDivName(x))
+divCadF = pd.read_excel(fileparcels[0], sheet_name=u'divCad ',
+                        skiprows=1,
+                        names=['divCad', 'divName_o']).assign(divName='')
+divCadF['divName'] = divCadF['divName_o'].apply(lambda x: convDivName(x))
 
 # Récupération du nom de la nature de la parcelle
-natureF = pd.read_excel (fileparcels[0], sheet_name=u'Nature',
-                       skiprows= 1, names = ['nature', 'nature_name','nature_name_nl'])
+natureF = pd.read_excel(fileparcels[0], sheet_name=u'Nature',
+                        skiprows=1,
+                        names=['nature', 'nature_name', 'nature_name_nl'])
 
 da = pd.DataFrame(data = dP.divCad.unique(), columns = ['divCad'])
 da['divName'] = da['divCad'].apply (lambda x:divCadF[divCadF.divCad == x].divName.values[0])
@@ -86,8 +97,19 @@ pe.loc[:,"adr1"] = dO['zipCode'].str.cat (dO['municipality_fr'], sep = ' ')
 pe.loc[:,'adr2'] = dO['street_fr'].str.cat (dO['number'], sep = ' ')
 pe.rename(columns = {'order':'pos', 'articleOrder' : 'lt'}, inplace = True)
 
-prc = pd.DataFrame (dP[['propertySituationIdf','capakey','street_situation','divCad','section','primaryNumber','bisNumber','exponentLetter','exponentNumber','articleNumber','articleOrder','surfaceTaxable','soilRent','cadastralIncome','street_code','constructionYear','order','number']],
-                    columns =['propertySituationIdf','capakey','street_situation','divCad','section','primaryNumber','bisNumber','exponentLetter', 'exponentNumber','articleNumber','articleOrder','surfaceTaxable','soilRent','cadastralIncome','street_code','constructionYear','daa','order','number'])
+prc = pd.DataFrame (dP[['propertySituationIdf','capakey','street_situation',
+                        'divCad','section','primaryNumber','bisNumber',
+                        'exponentLetter','exponentNumber','articleNumber',
+                        'articleOrder','surfaceTaxable','soilRent',
+                        'cadastralIncome','street_code','constructionYear',
+                        'order','number']],
+                    columns =['propertySituationIdf','capakey',
+                              'street_situation','divCad','section',
+                              'primaryNumber','bisNumber','exponentLetter',
+                              'exponentNumber','articleNumber','articleOrder',
+                              'surfaceTaxable','soilRent','cadastralIncome',
+                              'street_code','constructionYear','daa','order',
+                              'number'])
 
 prc['articleNumber'] = pd.to_numeric(prc['articleNumber'], errors = 'coerce')
 prc['articleNumber'] = prc['articleNumber'].fillna(0).astype(int)
@@ -106,7 +128,7 @@ prc['daa'] = prc[['divCad']]*100000 + prc[['articleNumber']].values
 prc.rename (columns = {'daa': 'daa_prc', 'articleOrder' : 'prc_ord'}, inplace = True)
 
 print ("\nConversion natures ...")
-# perf problems
+
 def getNatureNameFromIndex(natureIndex):
     natureItem = natureF[natureF.nature == natureIndex]
 
@@ -120,7 +142,12 @@ def getNatureNameFromIndex(natureIndex):
 
 prc.loc[:,'na1'] = dP.loc[:,'nature'].apply(getNatureNameFromIndex)
 
-prc['prc'] = prc.apply(lambda x:'%s%4d/%02d%s%3d' % (x['section'],x['primaryNumber'],x['bisNumber'],x['exponentLetter'],x['exponentNumber']),axis=1)
+prc['prc'] = prc.apply(lambda x:'%s%4d/%02d%s%3d' % (x['section'],
+                                                     x['primaryNumber'],
+                                                     x['bisNumber'],
+                                                     x['exponentLetter'],
+                                                     x['exponentNumber']),
+                       axis=1)
 
 prc.loc[:,'prc'] = prc.prc.str.replace('/00', '   ') #Remove 0 BisNumber
 prc.loc[:,'prc'] = prc.prc.str.replace(' 0$', '') #Remove 0 exponentNumber
@@ -153,8 +180,13 @@ pe.to_csv (path_to_data + '/o_pe.csv', sep='|', columns=['pe', 'pos','adr1', 'ad
 
 # --------------- PRC -------------------
 print ('Génération de PRC.csv')
-prc.rename (columns = {'street_situation': 'sl1', 'daa_prc':'daa', 'prc_ord': 'ord', 'surfaceTaxable': 'co1', 'soilRent': 'ha1', 'cadastralIncome': 'ri1', 'street_code' : 'rscod', 'constructionYear':'acj'}, inplace = True)
-prc.to_csv (path_to_data + '/o_prc.csv', sep='|', columns=['capakey', 'daa', 'ord', 'sl1', 'prc','na1','co1' , 'ha1', 'ri1', 'rscod'])
+prc.rename (columns = {'street_situation': 'sl1', 'daa_prc':'daa',
+                       'prc_ord': 'ord', 'surfaceTaxable': 'co1',
+                       'soilRent': 'ha1', 'cadastralIncome': 'ri1',
+                       'street_code' : 'rscod',
+                       'constructionYear':'acj'}, inplace = True)
+prc.to_csv (path_to_data + '/o_prc.csv', sep='|',
+            columns=['capakey', 'daa', 'ord', 'sl1', 'prc','na1','co1' , 'ha1', 'ri1', 'rscod'])
 
 # --------------- MAP -------------------
 print ('Génération de MAP.csv')
@@ -162,13 +194,15 @@ print ('Génération de MAP.csv')
 #map = map.loc[map['CAPAKEY'] != 'DP'] #Pepinster has DP in capakey ..
 map = map.loc[map['capakey'].str.len() == 17] #Get only capakey
 # Attention Il exisiste des capakey sans PRC lié sur soignies
-map.to_csv (path_to_data + '/o_map.csv', sep='|', columns=['capakey', 'pe', 'adr1','adr2','sl1','prc','na1', 'CAPAKEY'])
+map.to_csv (path_to_data + '/o_map.csv', sep='|',
+            columns=['capakey', 'pe', 'adr1','adr2','sl1','prc','na1', 'CAPAKEY'])
 
 # --------------- CAPA -------------------
 print ('Génération de B_CAPA.shp')
 map.rename (columns = {'divCad':'da', 'primaryNumber':'radical','bisNumber':'bis'}, inplace = True)
 map['exposant'] = map['exponentLetter']
 capa['puissance'] = map['exponentNumber']
-capa =  capa.merge (map.loc[:,['CAPAKEY','da','section','radical','exposant','bis']].drop_duplicates(subset = ['CAPAKEY']), how = 'left', left_on = 'CAPAKEY', right_on = 'CAPAKEY' )
+capa =  capa.merge (map.loc[:,['CAPAKEY','da','section','radical',
+                               'exposant','bis']].drop_duplicates(subset = ['CAPAKEY']), how = 'left', left_on = 'CAPAKEY', right_on = 'CAPAKEY' )
 capa.to_file (path_to_data + "/OB_CaPa.shp")
 print ('Procédure terminée\n')
