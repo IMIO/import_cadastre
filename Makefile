@@ -1,9 +1,5 @@
-
-#export CADASTREDIR=/monrepertoiredimport
-export CAD_PG_HOST=localhost
-export CAD_DATABASE_NAME=test_cadastre
-export CAD_DB_USER_NAME=postgres
-export CAD_DB_USER_PASSWORD=
+include config.cfg
+export
 
 SHELL :=/bin/bash
 
