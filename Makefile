@@ -1,4 +1,5 @@
-include config.cfg
+CONFIG = config.cfg
+include $(CONFIG)
 export
 
 SHELL :=/bin/bash
