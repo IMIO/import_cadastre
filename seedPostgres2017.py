@@ -5,7 +5,7 @@ import glob
 import fiona
 from shapely.geometry import shape
 import psycopg2
-import xlrd
+
 import cadutils
 
 def load_ddl(conn, ddlfile):
@@ -18,30 +18,10 @@ def load_ddl(conn, ddlfile):
 
 def copy_from_csv_to_postgres_copy(conn, csv_path, table_name, sep=',', skip_header=True):
     cur = conn.cursor()
-    cur.execute ("SET DateStyle='DMY'")
-    with open(csv_path, 'r', encoding='iso8859-1') as csvfile:
+    with open(csv_path, 'r') as csvfile:
         if skip_header:
             next(csvfile)  # Skip the header row.
-        cur.copy_from(csvfile, table_name, sep, null = '')
-
-    conn.commit()
-
-def copy_from_parcel_codes_to_postgres(conn, path_to_parcel_codes,
-                                       table_name, sep=',', skip_header=True):
-    cur = conn.cursor()
-    book = xlrd.open_workbook(filename = path_to_parcel_codes,
-                              encoding_override = 'latin_1')
-    sheet = book.sheet_by_name("Nature")
-    query = """
-    INSERT INTO GLOBAL_NATURES (Nature_PK, Nature_FR, Nature_NL, obsolete)
-    VALUES (%s, %s, %s, %s)
-    """
-    for r in range (2, sheet.nrows):
-        nature_pk = sheet.cell(r,0).value
-        nature_fr = sheet.cell(r,1).value
-        nature_nl = sheet.cell(r,2).value
-        values = (nature_pk, nature_fr, nature_nl, 'false')
-        cur.execute (query, values)
+        cur.copy_from(csvfile, table_name, sep)
 
     conn.commit()
 
@@ -59,14 +39,8 @@ def copy_from_csv_to_postgres_inserts(conn, csv_path, table_name, columns, sep='
             cur.execute(query, vals)
     conn.commit()
 
-def create_tables(conn, cadastre_date):
-    for sqlfile in sorted(glob.glob(os.path.dirname(os.path.abspath(__file__))+
-        '/ddl' + cadastre_date + '/c*.sql')):
-        load_ddl(conn, sqlfile)
-
-def filling_tables(conn, cadastre_date):
-    for sqlfile in sorted(glob.glob(os.path.dirname(os.path.abspath(__file__))+
-        '/ddl' + cadastre_date + '/i*.sql')):
+def create_tables(conn):
+    for sqlfile in sorted(glob.glob(os.path.dirname(os.path.abspath(__file__))+'/ddl/*.sql')):
         load_ddl(conn, sqlfile)
 
 def refresh_materialized_view(conn):
@@ -103,12 +77,13 @@ def main():
         sys.exit(0)
     else:
         print("Using %s as working dir" % os.environ["CADASTREDIR"])
+        print("*")
 
-    cadastre_date = os.environ["CADASTREDATE"]
     path_to_data = os.environ["CADASTREDIR"]
-    path_to_owner = os.path.join(path_to_data, "Matrice/Owner.csv")
-    path_to_parcel = os.path.join(path_to_data, "Matrice/Parcel.csv")
-    path_to_parcel_codes = os.path.join(path_to_data, "Matrice_doc/OUTPUT PARCELS_.xlsx")
+    path_to_da = os.path.join(path_to_data, "o_da.csv")
+    path_to_map = os.path.join(path_to_data, "o_map.csv")
+    path_to_pe = os.path.join(path_to_data, "o_pe.csv")
+    path_to_prc = os.path.join(path_to_data, "o_prc.csv")
     path_to_capa = os.path.join(path_to_data, "OB_CaPa.shp")
     path_to_cabu = os.path.join(path_to_data, "Plan/B_CaBu.shp")
     path_to_canu = os.path.join(path_to_data, "Plan/B_CaNu.shp")
@@ -120,69 +95,86 @@ def main():
     path_to_toli = os.path.join(path_to_data, "Plan/B_ToLi.shp")
     path_to_topt = os.path.join(path_to_data, "Plan/B_ToPt.shp")
     path_to_mu = os.path.join(path_to_data, "Plan/A_AdMu.shp")
-    cadutils.checkFile(path_to_owner)
-    cadutils.checkFile(path_to_parcel)
+
+
+    cadutils.checkFile(path_to_da)
+    cadutils.checkFile(path_to_map)
+    cadutils.checkFile(path_to_pe)
+    cadutils.checkFile(path_to_prc)
     make_checks()
+
     pg_host = os.environ["CAD_PG_HOST"]
     database_name = os.environ["CAD_DATABASE_NAME"]
     user_name = os.environ["CAD_DB_USER_NAME"]
     user_password = os.environ["CAD_DB_USER_PASSWORD"]
+
     conn = psycopg2.connect("host=%s dbname=%s user=%s password=%s" % (pg_host, database_name, user_name, user_password))
+
     check_postgis()
-    print("* Creating tables")
-    create_tables(conn, cadastre_date)
-    print("* Importing data")
-    copy_from_csv_to_postgres_copy(conn, path_to_owner,"Owners_imp",sep=';'
-                                   , skip_header=True)
-    copy_from_csv_to_postgres_copy(conn, path_to_parcel,"Parcels_imp",sep=';'
-                                   , skip_header=True)
-    copy_from_parcel_codes_to_postgres(conn, path_to_parcel_codes,
-                        "Global_Natures",sep=';' , skip_header=True)
-    print("* Filling tables")
-    filling_tables(conn, cadastre_date)
+
+    print("* \n Creating tables \n")
+    create_tables(conn)
+    print("* \n Loading tables \n")
+
+    copy_from_csv_to_postgres_inserts(conn, path_to_da, "da", [
+        "da", "divname", "dan1"
+    ], sep="|")
+
+    copy_from_csv_to_postgres_inserts(conn, path_to_map, "map", [
+        "capakey", "pe", "adr1", "adr2", "sl1", "prc", "na1"
+    ], sep="|")
+
+    copy_from_csv_to_postgres_inserts(conn, path_to_pe, "pe", [
+        "pe", "adr1", "adr2", "daa","lt","pos"
+    ], sep="|")
+
+    copy_from_csv_to_postgres_inserts(conn, path_to_prc, "prc", [
+        "capakey", "daa", "sl1", "prc", "na1","co1","ha1","ri1","rscod","ord"
+    ], sep="|")
 
     load_shapefile(conn, "capa", path_to_capa, [
-         'CAPAKEY', 'CAPATY', 'SHAPE_AREA', 'SHEET', 'da',
-         'section', 'radical', 'exposant', 'bis', 'puissance'
+        'CAPAKEY', 'CAPATY', 'SHAPE_AREA', 'SHEET', 'da',
+        'section', 'radical', 'exposant', 'bis', 'puissance'
     ])
 
     load_shapefile(conn, "cabu", path_to_cabu, [
-         'CABUTY', 'SHEET'
+        'CABUTY', 'SHEET'
     ])
 
     load_shapefile(conn, "canu", path_to_canu, [
-         'CANUAN', 'CANUTX', 'SHEET'
+        'CANUAN', 'CANUTX', 'SHEET'
     ])
 
     load_shapefile(conn, "geli", path_to_geli, [
-         'GELITY', 'SHEET'
+        'GELITY', 'SHEET'
     ])
 
     load_shapefile(conn, "gepn", path_to_gepn, [
-         'GEPNTY', 'GEPNNA', 'SHEET'
+        'GEPNTY', 'GEPNNA', 'SHEET'
     ])
 
     load_shapefile(conn, "gept", path_to_gept, [
-         'GEPTTY', 'GEPTNA', 'SHEET'
+        'GEPTTY', 'GEPTNA', 'SHEET'
     ])
 
     load_shapefile(conn, "inli", path_to_inli, [
-         'INLITY', 'INLITX', 'SHEET'
+        'INLITY', 'INLITX', 'SHEET'
     ])
 
     load_shapefile(conn, "inpt", path_to_inpt, [
-         'INPTTY', 'INPTTX', 'SHEET'
+        'INPTTY', 'INPTTX', 'SHEET'
     ])
 
     load_shapefile(conn, "toli", path_to_toli, [
-         'TOLITY', 'TOLITX', 'SHEET'
+        'TOLITY', 'TOLITX', 'SHEET'
     ])
 
     load_shapefile(conn, "topt", path_to_topt, [
-         'TOPTTY', 'TOPTTX', 'TOPTAN', 'SHEET'
+        'TOPTTY', 'TOPTTX', 'TOPTAN', 'SHEET'
     ])
-    print("* Done \n")
+
+    refresh_materialized_view(conn)
+    print("* \n Done \n")
 
 if __name__ == "__main__":
     main()
-
