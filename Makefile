@@ -4,7 +4,7 @@ export
 
 SHELL :=/bin/bash
 
-all: printenv parsecadastre seedpostgres
+all: printenv seedpostgres
 
 install:
 	virtualenv -p python3 env; \
