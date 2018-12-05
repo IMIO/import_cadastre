@@ -1,0 +1,11 @@
+for shpfile in `cat shpfiles`
+ do
+ echo "création sql file $shpfile.sql"
+ if [ -f $shpfile.shp ]; then
+   shp2pgsql -s 31370  $shpfile.shp  $shpfile > $shpfile.sql
+   psql -U lambil -d gisdb -f $shpfile.sql
+ else
+   echo "$shpfile does not exist"
+ fi
+done
+
