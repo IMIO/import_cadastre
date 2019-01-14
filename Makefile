@@ -4,7 +4,7 @@ export
 
 SHELL :=/bin/bash
 
-all: printenv seedpostgres
+all: printenv install seedpostgres
 
 install:
 	virtualenv -p python3 env; \

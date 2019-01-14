@@ -90,7 +90,7 @@ def load_shapefile(conn, table_name, shapefile_path, columns):
              #Lower case for CAPAKEY, CAPATY, SHAPE_AREA, SHEET
             column_names = ','.join(map(str.lower, columns))
             query = 'INSERT INTO %s (the_geom, %s) ' % (table_name, column_names)
-            query += 'VALUES (ST_SetSRID(ST_GeomFromText(%s),31370), ' + ','.join(['%s' for column_name in columns]) +')'
+            query += 'VALUES (ST_SetSRID(ST_GeomFromText(%s),3812), ' + ','.join(['%s' for column_name in columns]) +')'
             vals = [feat['properties'][column_name]for column_name in columns]
             vals = [the_geom.wkt] + vals
             cur.execute(query, vals)
