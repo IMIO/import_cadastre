@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  cadastre:
+      build: .
+      hostname: cadastre
+      volumes:
+          - ./config.cfg:/usr/src/app/config.cfg
+          - ./2018/Communetest:/srv/cadastredir/Communetest
+      environment: 
+          - CAD_PG_HOST=host.docker.internal

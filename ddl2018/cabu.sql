@@ -14,8 +14,8 @@ CREATE SEQUENCE public.cabu_gid_seq
 CREATE TABLE public.cabu
 (
     gid integer NOT NULL DEFAULT nextval('cabu_gid_seq'),
-    cabuty character varying(2),
-    sheet character varying(18),
+    recid int,
+    "type" character varying(2),
     the_geom geometry,
     CONSTRAINT cabu_pkey PRIMARY KEY (gid),
     CONSTRAINT enforce_dims_the_geom CHECK (st_ndims(the_geom) = 2),
@@ -30,4 +30,4 @@ CREATE INDEX cabu_the_geom_gist
 
 CREATE INDEX cabuty_idx
     ON public.cabu USING btree
-    (cabuty );
+    ("type" );

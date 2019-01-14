@@ -109,17 +109,18 @@ def main():
     path_to_owner = os.path.join(path_to_data, "Matrice/Owner.csv")
     path_to_parcel = os.path.join(path_to_data, "Matrice/Parcel.csv")
     path_to_parcel_codes = os.path.join(path_to_data, "Matrice_doc/OUTPUT PARCELS_.xlsx")
-    path_to_capa = os.path.join(path_to_data, "OB_CaPa.shp")
-    path_to_cabu = os.path.join(path_to_data, "Plan/B_CaBu.shp")
-    path_to_canu = os.path.join(path_to_data, "Plan/B_CaNu.shp")
-    path_to_geli = os.path.join(path_to_data, "Plan/B_GeLi.shp")
-    path_to_gepn = os.path.join(path_to_data, "Plan/B_GePn.shp")
-    path_to_gept = os.path.join(path_to_data, "Plan/B_GePt.shp")
-    path_to_inli = os.path.join(path_to_data, "Plan/B_InLi.shp")
-    path_to_inpt = os.path.join(path_to_data, "Plan/B_InPt.shp")
-    path_to_toli = os.path.join(path_to_data, "Plan/B_ToLi.shp")
-    path_to_topt = os.path.join(path_to_data, "Plan/B_ToPt.shp")
-    path_to_mu = os.path.join(path_to_data, "Plan/A_AdMu.shp")
+    #path_to_capa = os.path.join(path_to_data, "OB_CaPa.shp")
+    path_to_capa = os.path.join(path_to_data, "Plan/Bpn_CaPa.shp")
+    path_to_cabu = os.path.join(path_to_data, "Plan/Bpn_CaBu.shp")
+    #path_to_canu = os.path.join(path_to_data, "Plan/B_CaNu.shp")
+    #path_to_geli = os.path.join(path_to_data, "Plan/B_GeLi.shp")
+    #path_to_gepn = os.path.join(path_to_data, "Plan/B_GePn.shp")
+    #path_to_gept = os.path.join(path_to_data, "Plan/B_GePt.shp")
+    #path_to_inli = os.path.join(path_to_data, "Plan/B_InLi.shp")
+    #path_to_inpt = os.path.join(path_to_data, "Plan/B_InPt.shp")
+    #path_to_toli = os.path.join(path_to_data, "Plan/B_ToLi.shp")
+    #path_to_topt = os.path.join(path_to_data, "Plan/B_ToPt.shp")
+    #path_to_mu = os.path.join(path_to_data, "Plan/A_AdMu.shp")
     cadutils.checkFile(path_to_owner)
     cadutils.checkFile(path_to_parcel)
     make_checks()
@@ -142,45 +143,14 @@ def main():
     filling_tables(conn, cadastre_date)
 
     load_shapefile(conn, "capa", path_to_capa, [
-         'CAPAKEY', 'CAPATY', 'SHAPE_AREA', 'SHEET', 'da',
-         'section', 'radical', 'exposant', 'bis', 'puissance'
+         'CaPaKey',  'CaSeKey' 
     ])
 
     load_shapefile(conn, "cabu", path_to_cabu, [
-         'CABUTY', 'SHEET'
+         'RecId', 'Type'
     ])
+ 
 
-    load_shapefile(conn, "canu", path_to_canu, [
-         'CANUAN', 'CANUTX', 'SHEET'
-    ])
-
-    load_shapefile(conn, "geli", path_to_geli, [
-         'GELITY', 'SHEET'
-    ])
-
-    load_shapefile(conn, "gepn", path_to_gepn, [
-         'GEPNTY', 'GEPNNA', 'SHEET'
-    ])
-
-    load_shapefile(conn, "gept", path_to_gept, [
-         'GEPTTY', 'GEPTNA', 'SHEET'
-    ])
-
-    load_shapefile(conn, "inli", path_to_inli, [
-         'INLITY', 'INLITX', 'SHEET'
-    ])
-
-    load_shapefile(conn, "inpt", path_to_inpt, [
-         'INPTTY', 'INPTTX', 'SHEET'
-    ])
-
-    load_shapefile(conn, "toli", path_to_toli, [
-         'TOLITY', 'TOLITX', 'SHEET'
-    ])
-
-    load_shapefile(conn, "topt", path_to_topt, [
-         'TOPTTY', 'TOPTTX', 'TOPTAN', 'SHEET'
-    ])
     print("* Done \n")
 
 if __name__ == "__main__":
