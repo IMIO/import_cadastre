@@ -90,7 +90,7 @@ def load_shapefile(conn, table_name, shapefile_path, columns):
              #Lower case for CAPAKEY, CAPATY, SHAPE_AREA, SHEET
             column_names = ','.join(map(str.lower, columns))
             query = 'INSERT INTO %s (the_geom, %s) ' % (table_name, column_names)
-            query += 'VALUES (ST_SetSRID(ST_GeomFromText(%s),3812), ' + ','.join(['%s' for column_name in columns]) +')'
+            query += 'VALUES (ST_SetSRID(ST_GeomFromText(%s),31370), ' + ','.join(['%s' for column_name in columns]) +')'
             vals = [feat['properties'][column_name]for column_name in columns]
             vals = [the_geom.wkt] + vals
             cur.execute(query, vals)
@@ -110,7 +110,7 @@ def main():
     path_to_parcel = os.path.join(path_to_data, "Matrice/Parcel.csv")
     path_to_parcel_codes = os.path.join(path_to_data, "Matrice_doc/OUTPUT PARCELS_.xlsx")
     #path_to_capa = os.path.join(path_to_data, "OB_CaPa.shp")
-    path_to_capa = os.path.join(path_to_data, "Plan/Bpn_CaPa.shp")
+    path_to_capa = os.path.join(path_to_data, "Plan/Bpn_CaPa31370.shp")
     path_to_cabu = os.path.join(path_to_data, "Plan/Bpn_CaBu.shp")
     #path_to_canu = os.path.join(path_to_data, "Plan/B_CaNu.shp")
     #path_to_geli = os.path.join(path_to_data, "Plan/B_GeLi.shp")
