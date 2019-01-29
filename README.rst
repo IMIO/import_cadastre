@@ -60,3 +60,12 @@ Utilisation:
  {name: 'adr1' , type: 'string'}, --> ok
  {name: 'adr2' , type: 'string'} --> ok
 ``
+2017 : Remplir les champs capa à partir de la capakey
+
+update capa set
+ da = substring(capakey from 1 for 5)::int,
+ section = substring(capakey from 6 for 1),
+ radical = substring(capakey from 7 for 4)::int,
+ exposant = substring(capakey from 14 for 1),
+ bis = substring(capakey from 12 for 2)::int,
+ puissance = substring(capakey from 15 for 3)::int;
