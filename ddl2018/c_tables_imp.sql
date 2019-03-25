@@ -26,6 +26,22 @@ CREATE TABLE Global_Natures
 	Obsolete			Boolean NOT NULL
 );
 
+DROP TABLE IF EXISTS Divisions;
+CREATE TABLE Divisions
+(
+    da bigint NOT NULL,
+    dan1 character varying(64),
+    lt character varying(2),
+    admnr character varying(10),
+    da1 character varying(4),
+    adm1 character varying(50),
+    mut character varying(4),
+    dan2 character varying(64),
+    adm2 character varying(50),
+    divname character varying(50),
+    CONSTRAINT da_pk PRIMARY KEY (da)
+);
+
 DROP TABLE IF EXISTS OwnersNames;
 CREATE TABLE OwnersNames
  (
@@ -257,3 +273,4 @@ CREATE TABLE Parcels_imp
 	usedSurface			Bigint, 
 	dateSituation			date
 );
+

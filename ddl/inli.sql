@@ -15,7 +15,7 @@ CREATE TABLE public.inli
 (
     gid integer NOT NULL DEFAULT nextval('inli_gid_seq'),
     inlity character varying(2),
-    inlitx character varying(50),
+    inlitx character varying(100),
     sheet character varying(18),
     the_geom geometry,
     CONSTRAINT inli_pkey PRIMARY KEY (gid),

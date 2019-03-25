@@ -45,6 +45,30 @@ def copy_from_parcel_codes_to_postgres(conn, path_to_parcel_codes,
 
     conn.commit()
 
+def copy_division_to_postgres(conn, path_to_parcel_codes,
+                                       table_name, sep=',', skip_header=True):
+    cur = conn.cursor()
+    book = xlrd.open_workbook(filename = path_to_parcel_codes,
+                              encoding_override = 'latin_1')
+    sheet = book.sheet_by_name("divCad ")
+    query = """
+    INSERT INTO Divisions (da, dan1, divname)
+    VALUES (%s, %s, %s)
+    """
+    for r in range (2, sheet.nrows):
+        divcode = sheet.cell(r,0).value
+        divname = sheet.cell(r,1).value
+        values = (divcode, divname, divname)
+        cur.execute (query, values)
+
+    conn.commit()
+
+def clean_unused_division(conn):
+    print(" *Cleaning unused divisions")
+    cur = conn.cursor()
+    cur.execute("delete from divisions where da not in (select distinct(divcad) from parcels)")
+    conn.commit()
+
 def copy_from_csv_to_postgres_inserts(conn, csv_path, table_name, columns, sep=','):
     cur = conn.cursor()
     print("* Loading %s with %s" % (table_name, os.path.basename(csv_path)))
@@ -109,18 +133,10 @@ def main():
     path_to_owner = os.path.join(path_to_data, "Matrice/Owner.csv")
     path_to_parcel = os.path.join(path_to_data, "Matrice/Parcel.csv")
     path_to_parcel_codes = os.path.join(path_to_data, "Matrice_doc/OUTPUT PARCELS_.xlsx")
-    #path_to_capa = os.path.join(path_to_data, "OB_CaPa.shp")
+
     path_to_capa = os.path.join(path_to_data, "Plan/Bpn_CaPa.shp")
     path_to_cabu = os.path.join(path_to_data, "Plan/Bpn_CaBu.shp")
-    #path_to_canu = os.path.join(path_to_data, "Plan/B_CaNu.shp")
-    #path_to_geli = os.path.join(path_to_data, "Plan/B_GeLi.shp")
-    #path_to_gepn = os.path.join(path_to_data, "Plan/B_GePn.shp")
-    #path_to_gept = os.path.join(path_to_data, "Plan/B_GePt.shp")
-    #path_to_inli = os.path.join(path_to_data, "Plan/B_InLi.shp")
-    #path_to_inpt = os.path.join(path_to_data, "Plan/B_InPt.shp")
-    #path_to_toli = os.path.join(path_to_data, "Plan/B_ToLi.shp")
-    #path_to_topt = os.path.join(path_to_data, "Plan/B_ToPt.shp")
-    #path_to_mu = os.path.join(path_to_data, "Plan/A_AdMu.shp")
+
     cadutils.checkFile(path_to_owner)
     cadutils.checkFile(path_to_parcel)
     make_checks()
@@ -139,8 +155,13 @@ def main():
                                    , skip_header=True)
     copy_from_parcel_codes_to_postgres(conn, path_to_parcel_codes,
                         "Global_Natures",sep=';' , skip_header=True)
+
     print("* Filling tables")
     filling_tables(conn, cadastre_date)
+
+    copy_division_to_postgres(conn, path_to_parcel_codes,
+                        "Global_Natures",sep=';' , skip_header=True)
+    clean_unused_division(conn)
 
     load_shapefile(conn, "capa", path_to_capa, [
          'CaPaKey',  'CaSeKey' 
