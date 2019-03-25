@@ -110,7 +110,7 @@ def main():
     path_to_parcel = os.path.join(path_to_data, "Matrice/Parcel.csv")
     path_to_parcel_codes = os.path.join(path_to_data, "Matrice_doc/OUTPUT PARCELS_.xlsx")
     #path_to_capa = os.path.join(path_to_data, "OB_CaPa.shp")
-    path_to_capa = os.path.join(path_to_data, "Plan/Bpn_CaPa31370.shp")
+    path_to_capa = os.path.join(path_to_data, "Plan/Bpn_CaPa.shp")
     path_to_cabu = os.path.join(path_to_data, "Plan/Bpn_CaBu.shp")
     #path_to_canu = os.path.join(path_to_data, "Plan/B_CaNu.shp")
     #path_to_geli = os.path.join(path_to_data, "Plan/B_GeLi.shp")

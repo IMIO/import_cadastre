@@ -136,7 +136,7 @@ def main():
         'CAPAKEY', 'CAPATY', 'SHAPE_AREA', 'SHEET', 'da',
         'section', 'radical', 'exposant', 'bis', 'puissance'
     ])
-
+    
     load_shapefile(conn, "cabu", path_to_cabu, [
         'CABUTY', 'SHEET'
     ])
@@ -172,8 +172,9 @@ def main():
     load_shapefile(conn, "topt", path_to_topt, [
         'TOPTTY', 'TOPTTX', 'TOPTAN', 'SHEET'
     ])
-
+    
     refresh_materialized_view(conn)
+    
     print("* \n Done \n")
 
 if __name__ == "__main__":
