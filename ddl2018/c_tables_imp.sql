@@ -107,6 +107,48 @@ CREATE TABLE Parcels
 	Group_UID			bigint
 );
 
+DROP TABLE IF EXISTS Parcels_historic;
+CREATE TABLE Parcels_historic
+ (
+	propertySituationIdf_av		bigint, 
+	divCad_av			bigint, 
+	articleNumber_av	bigint, 
+	articleOrder_av		bigint, 
+	section_av			Character varying (2), 
+	primaryNumber_av	Integer, 
+	bisNumber_av		Character varying (6), 
+	exponentLetter_av	Character varying (2), 
+	exponentNumber_av	Character varying (6), 
+	partNumber_av	    Character varying (10),
+	noParcel_av 	    Character varying (10),
+    parclCadStatu_av    Integer,
+    flagAnnul           Integer,
+    flagInterm_av       Integer,
+    descriptPrivate_av	Character varying (100), 
+    yearBegin_av        Integer,
+    yearEnd_av          Integer,
+    yearAnnul_av        Integer,
+	propertySituationIdf_ap		bigint, 
+	divCad_ap			bigint, 
+	articleNumber_ap	bigint, 
+	articleOrder_ap		bigint, 
+	section_ap			Character varying (2), 
+	primaryNumber_ap	Integer, 
+	bisNumber_ap		Character varying (6), 
+	exponentLetter_ap	Character varying (2), 
+	exponentNumber_ap	Character varying (6), 
+	partNumber_ap	    Character varying (10),
+	noParcel_ap 	    Character varying (10),
+    parclCadStatu_ap    Integer,
+    flagInterm_ap       Integer,
+    descriptPrivate_apy	Character varying (100), 
+    yearBegin_ap        Integer,
+    yearEnd_ap          Integer,
+    yearAnnul_ap        Integer,
+    dossier             Character varying (100), 
+    sketch              Character varying (20) 
+);
+
 DROP TABLE IF EXISTS Parcels_CC;
 CREATE TABLE Parcels_CC
  (

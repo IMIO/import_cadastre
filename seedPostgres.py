@@ -16,10 +16,10 @@ def load_ddl(conn, ddlfile):
         cur.execute(ddl_content)
         conn.commit()
 
-def copy_from_csv_to_postgres_copy(conn, csv_path, table_name, sep=',', skip_header=True):
+def copy_from_csv_to_postgres_copy(conn, csv_path, table_name, sep=',', skip_header=True, encoding='iso8859-1'):
     cur = conn.cursor()
     cur.execute ("SET DateStyle='DMY'")
-    with open(csv_path, 'r', encoding='iso8859-1') as csvfile:
+    with open(csv_path, 'r', encoding=encoding) as csvfile:
         if skip_header:
             next(csvfile)  # Skip the header row.
         cur.copy_from(csvfile, table_name, sep, null = '')
@@ -133,6 +133,7 @@ def main():
     path_to_owner = os.path.join(path_to_data, "Matrice/Owner.csv")
     path_to_parcel = os.path.join(path_to_data, "Matrice/Parcel.csv")
     path_to_parcel_codes = os.path.join(path_to_data, "Matrice_doc/OUTPUT PARCELS_.xlsx")
+    path_to_historic = os.path.join(path_to_data, "Historique")
 
     path_to_capa = os.path.join(path_to_data, "Plan/Bpn_CaPa.shp")
     path_to_cabu = os.path.join(path_to_data, "Plan/Bpn_CaBu.shp")
@@ -149,6 +150,9 @@ def main():
     print("* Creating tables")
     create_tables(conn, cadastre_date)
     print("* Importing data")
+    for file_name in [os.listdir(path_to_historic)[0]]:
+        copy_from_csv_to_postgres_copy(conn, os.path.join(path_to_historic, file_name), "Parcels_historic",sep=';'
+                                       , skip_header=True)
     copy_from_csv_to_postgres_copy(conn, path_to_owner,"Owners_imp",sep=';'
                                    , skip_header=True)
     copy_from_csv_to_postgres_copy(conn, path_to_parcel,"Parcels_imp",sep=';'
@@ -164,13 +168,13 @@ def main():
     clean_unused_division(conn)
 
     load_shapefile(conn, "capa", path_to_capa, [
-         'CaPaKey',  'CaSeKey' 
+         'CaPaKey',  'CaSeKey'
     ])
 
     load_shapefile(conn, "cabu", path_to_cabu, [
          'RecId', 'Type'
     ])
- 
+
 
     print("* Done \n")
 
