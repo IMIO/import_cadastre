@@ -151,6 +151,27 @@ CREATE TABLE Parcels_historic
 	capakey_ap		Character varying (20)
 );
 
+DROP TABLE IF EXISTS Reduced_Parcels_historic;
+CREATE TABLE Reduced_Parcels_historic
+ (
+	divCad_av			bigint,
+	section_av			Character varying (2),
+	primaryNumber_av	Integer,
+	bisNumber_av		Character varying (6),
+	exponentLetter_av	Character varying (2),
+	exponentNumber_av	Character varying (6),
+	partNumber_av	    Character varying (10),
+	divCad_ap			bigint,
+	section_ap			Character varying (2),
+	primaryNumber_ap	Integer,
+	bisNumber_ap		Character varying (6),
+	exponentLetter_ap	Character varying (2),
+	exponentNumber_ap	Character varying (6),
+	partNumber_ap	    Character varying (10),
+	capakey_av		Character varying (20),
+	capakey_ap		Character varying (20)
+);
+
 DROP TABLE IF EXISTS Parcels_CC;
 CREATE TABLE Parcels_CC
  (

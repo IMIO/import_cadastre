@@ -104,14 +104,12 @@ def copy_from_csv_to_postgres_inserts(conn, csv_path, table_name, columns, sep='
 
 
 def create_tables(conn, cadastre_date):
-    for sqlfile in sorted(glob.glob(os.path.dirname(os.path.abspath(__file__)) +
-        '/ddl' + cadastre_date + '/c*.sql')):
+    for sqlfile in sorted(glob.glob(os.path.dirname(os.path.abspath(__file__)) + '/ddl' + cadastre_date + '/c*.sql')):
         load_ddl(conn, sqlfile)
 
 
 def filling_tables(conn, cadastre_date):
-    for sqlfile in sorted(glob.glob(os.path.dirname(os.path.abspath(__file__)) +
-        '/ddl' + cadastre_date + '/i*.sql')):
+    for sqlfile in sorted(glob.glob(os.path.dirname(os.path.abspath(__file__)) + '/ddl' + cadastre_date + '/i*.sql')):
         load_ddl(conn, sqlfile)
 
 
@@ -149,7 +147,7 @@ def load_shapefile(conn, table_name, shapefile_path, columns):
 def get_historic_array(path):
     """ """
     merged_arrays = None
-    for file_name in [os.listdir(path)[0]]:
+    for file_name in os.listdir(path):
         array = pandas.read_csv(
             os.path.join(path, file_name),
             sep=';',
@@ -207,6 +205,44 @@ def generate_capakey(div, section, primary, bis, exponent_l, exponent_n):
     return capakey
 
 
+def reduce_historic_array(array):
+    array = array.drop(columns=[
+        'propertySituationIdf_av',
+        'articleNumber_av',
+        'articleOrder_av',
+        'noParcel_av',
+        'parclCadStatu_av',
+        'flagAnnul',
+        'flagInterm_av',
+        'descriptPrivate_av',
+        'yearBegin_av',
+        'yearEnd_av',
+        'yearAnnul_av',
+        'propertySituationIdf_ap',
+        'articleNumber_ap',
+        'articleOrder_ap',
+        'noParcel_ap',
+        'parclCadStatu_ap',
+        'flagInterm_ap',
+        'descriptPrivate_ap',
+        'yearBegin_ap',
+        'yearEnd_ap',
+        'yearAnnul_ap',
+        'dossier', 'sketch'
+    ])
+    array = array.assign(
+        partNumber_av=lambda array: array['partNumber_av'].replace('P0000', ''),
+        partNumber_ap=lambda array: array['partNumber_ap'].replace('P0000', ''),
+    )
+    array = array.drop_duplicates()
+    to_drop = []
+    for index, row in array.iterrows():
+        if row.capakey_av == row.capakey_ap and row.partNumber_av == row.partNumber_ap:
+            to_drop.append(index)
+    array = array.drop(to_drop)
+    return array
+
+
 def main():
     if os.environ["CADASTREDIR"] == "":
         print("Environment variable CADASTREDIR must be set and pointing to a directory")
@@ -235,14 +271,16 @@ def main():
     check_postgis()
     print("* Creating tables")
     create_tables(conn, cadastre_date)
-    print("* Loading historic data")
+    print("* Importing data")
     historic_array = get_historic_array(path_to_historic)
-    print("* Generating historic array")
     new_historic_array = add_capakey_columns(historic_array)
     print("* Importing historic data")
     copy_from_array_to_postgres(conn, new_historic_array, "Parcels_historic", sep=';',
                                 skip_header=True)
-    print("* Importing data")
+    reduced_historic_array = reduce_historic_array(new_historic_array)
+    print("* Importing reduced historic data")
+    copy_from_array_to_postgres(conn, reduced_historic_array, "Reduced_Parcels_historic", sep=';',
+                                skip_header=True)
     copy_from_csv_to_postgres_copy(conn, path_to_owner, "Owners_imp", sep=';',
                                    skip_header=True)
     copy_from_csv_to_postgres_copy(conn, path_to_parcel, "Parcels_imp", sep=';',
