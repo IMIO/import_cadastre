@@ -149,7 +149,7 @@ def load_shapefile(conn, table_name, shapefile_path, columns):
 def get_historic_array(path):
     """ """
     merged_arrays = None
-    for file_name in os.listdir(path):
+    for file_name in [os.listdir(path)[0]]:
         array = pandas.read_csv(
             os.path.join(path, file_name),
             sep=';',
@@ -162,6 +162,49 @@ def get_historic_array(path):
         else:
             merged_arrays = merged_arrays.append(array)
     return merged_arrays
+
+
+def add_capakey_columns(array):
+    array = array.assign(capakey_av=lambda x: '')
+    array['capakey_av'] = array.apply(
+        lambda row: generate_capakey(
+            row.divCad_av,
+            row.section_av,
+            row.primaryNumber_av,
+            row.bisNumber_av,
+            row.exponentLetter_av,
+            row.exponentNumber_av,
+        ),
+        axis=1
+    )
+    array = array.assign(capakey_ap=lambda x: '')
+    array['capakey_ap'] = array.apply(
+        lambda row: generate_capakey(
+            row.divCad_ap,
+            row.section_ap,
+            row.primaryNumber_ap,
+            row.bisNumber_ap,
+            row.exponentLetter_ap,
+            row.exponentNumber_ap,
+        ),
+        axis=1
+    )
+    return array
+
+
+def generate_capakey(div, section, primary, bis, exponent_l, exponent_n):
+    if not section:
+        return ''
+
+    capakey = '{:0>5}{}{:0>4}/{:0>2}{:_>1}{:0>3}'.format(
+        div,
+        section,
+        primary,
+        bis,
+        exponent_l,
+        exponent_n,
+    )
+    return capakey
 
 
 def main():
@@ -192,11 +235,14 @@ def main():
     check_postgis()
     print("* Creating tables")
     create_tables(conn, cadastre_date)
-    print("* Importing data")
+    print("* Loading historic data")
     historic_array = get_historic_array(path_to_historic)
-    # new_historic_array = add_capakey_columns(historic_array)
-    copy_from_array_to_postgres(conn, historic_array, "Parcels_historic", sep=';',
+    print("* Generating historic array")
+    new_historic_array = add_capakey_columns(historic_array)
+    print("* Importing historic data")
+    copy_from_array_to_postgres(conn, new_historic_array, "Parcels_historic", sep=';',
                                 skip_header=True)
+    print("* Importing data")
     copy_from_csv_to_postgres_copy(conn, path_to_owner, "Owners_imp", sep=';',
                                    skip_header=True)
     copy_from_csv_to_postgres_copy(conn, path_to_parcel, "Parcels_imp", sep=';',
