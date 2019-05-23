@@ -172,6 +172,15 @@ CREATE TABLE Reduced_Parcels_historic
 	capakey_ap		Character varying (20)
 );
 
+DROP TABLE IF EXISTS Parcels_genealogy;
+CREATE TABLE Parcels_genealogy
+ (
+	capakey             Character varying (20),
+	partNumber          Character varying (10),
+	predecessors        Character varying (100000),
+	successors          Character varying (100000)
+);
+
 DROP TABLE IF EXISTS Parcels_CC;
 CREATE TABLE Parcels_CC
  (

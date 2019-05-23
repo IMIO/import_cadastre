@@ -9,6 +9,7 @@ import psycopg2
 import xlrd
 import cadutils
 import pandas
+import networkx
 
 
 def load_ddl(conn, ddlfile):
@@ -31,10 +32,10 @@ def copy_from_csv_to_postgres_copy(conn, csv_path, table_name, sep=',', skip_hea
     conn.commit()
 
 
-def copy_from_array_to_postgres(conn, array, table_name, sep=',', skip_header=True, encoding='iso8859-1'):
+def copy_from_array_to_postgres(conn, array, table_name, sep=';', skip_header=True, encoding='iso8859-1'):
     cur = conn.cursor()
     cur.execute("SET DateStyle='DMY'")
-    with io.StringIO(array.to_csv(sep=';', index=False)) as csvfile:
+    with io.StringIO(array.to_csv(sep=sep, index=False)) as csvfile:
         if skip_header:
             next(csvfile)  # Skip the header row.
         cur.copy_from(csvfile, table_name, sep, null='')
@@ -231,8 +232,8 @@ def reduce_historic_array(array):
         'dossier', 'sketch'
     ])
     array = array.assign(
-        partNumber_av=lambda array: array['partNumber_av'].replace('P0000', ''),
-        partNumber_ap=lambda array: array['partNumber_ap'].replace('P0000', ''),
+        partNumber_av=lambda array: array['partNumber_av'].replace('', 'P0000'),
+        partNumber_ap=lambda array: array['partNumber_ap'].replace('', 'P0000'),
     )
     array = array.drop_duplicates()
     to_drop = []
@@ -241,6 +242,53 @@ def reduce_historic_array(array):
             to_drop.append(index)
     array = array.drop(to_drop)
     return array
+
+
+def create_historic_graph(array):
+    graph = networkx.DiGraph()
+    for row in array.itertuples():
+        before = (row.capakey_av, row.partNumber_av)
+        after = (row.capakey_ap, row.partNumber_ap)
+        if before[0] and after[0]:
+            graph.add_edge(before, after)
+            if before[0]:
+                graph.add_node(before)
+            if after[0]:
+                graph.add_node(after)
+    return graph
+
+
+def build_genealogy(array):
+    def get_successors(graph, node, checked=set([])):
+        successors = {}
+        checked.add(node)
+        for subnode in graph.successors(node):
+            if subnode not in checked:
+                successors[subnode] = get_successors(graph, subnode, checked)
+        return successors
+
+    def get_predecessors(graph, node, checked=set([])):
+        predecessors = {}
+        checked.add(node)
+        for subnode in graph.predecessors(node):
+            if subnode not in checked:
+                predecessors[subnode] = get_predecessors(graph, subnode)
+        return predecessors
+
+    graph = create_historic_graph(array)
+    new_historic = []
+    for node in graph.nodes():
+        capakey = node[0]
+        part = node[1]
+        predecessors = str(get_predecessors(graph, node, checked=set([])))
+        successors = str(get_successors(graph, node, checked=set([])))
+        new_historic.append([capakey, part, predecessors, successors])
+
+    new_array = pandas.DataFrame(
+        data=new_historic,
+        columns=['capakey', 'partNumber', 'predecessors', 'successors']
+    )
+    return new_array
 
 
 def main():
@@ -275,11 +323,15 @@ def main():
     historic_array = get_historic_array(path_to_historic)
     new_historic_array = add_capakey_columns(historic_array)
     print("* Importing historic data")
-    copy_from_array_to_postgres(conn, new_historic_array, "Parcels_historic", sep=';',
+    copy_from_array_to_postgres(conn, new_historic_array, "Parcels_historic",
                                 skip_header=True)
     reduced_historic_array = reduce_historic_array(new_historic_array)
     print("* Importing reduced historic data")
     copy_from_array_to_postgres(conn, reduced_historic_array, "Reduced_Parcels_historic", sep=';',
+                                skip_header=True)
+    genealogy_array = build_genealogy(reduced_historic_array)
+    print("* Importing genealogy of each capakey")
+    copy_from_array_to_postgres(conn, genealogy_array, "Parcels_genealogy",
                                 skip_header=True)
     copy_from_csv_to_postgres_copy(conn, path_to_owner, "Owners_imp", sep=';',
                                    skip_header=True)
@@ -287,7 +339,6 @@ def main():
                                    skip_header=True)
     copy_from_parcel_codes_to_postgres(conn, path_to_parcel_codes, "Global_Natures",
                                        sep=';', skip_header=True)
-
     print("* Filling tables")
     filling_tables(conn, cadastre_date)
 
