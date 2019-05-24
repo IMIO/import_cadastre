@@ -250,11 +250,9 @@ def create_historic_graph(array):
         before = (row.capakey_av, row.partNumber_av)
         after = (row.capakey_ap, row.partNumber_ap)
         if before[0] and after[0]:
+            graph.add_node(before)
+            graph.add_node(after)
             graph.add_edge(before, after)
-            if before[0]:
-                graph.add_node(before)
-            if after[0]:
-                graph.add_node(after)
     return graph
 
 
@@ -272,7 +270,7 @@ def build_genealogy(array):
         checked.add(node)
         for subnode in graph.predecessors(node):
             if subnode not in checked:
-                predecessors[subnode] = get_predecessors(graph, subnode)
+                predecessors[subnode] = get_predecessors(graph, subnode, checked)
         return predecessors
 
     graph = create_historic_graph(array)
