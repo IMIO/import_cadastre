@@ -107,6 +107,23 @@ CREATE TABLE Parcels
 	Group_UID			bigint
 );
 
+DROP TABLE IF EXISTS Old_parcels;
+CREATE TABLE Old_parcels
+ (
+	capakey				Character varying (34) NOT NULL,
+	divCad				bigint,
+	section				Character varying (2),
+	primaryNumber			Integer,
+	bisNumber			Character varying (6),
+	exponentLetter			Character varying (2),
+	exponentNumber			Character varying (6),
+	partNumber			Character varying (10),
+    yearBegin           Integer,
+    yearEnd             Integer,
+    yearAnnul           Integer,
+	propertySituationId		bigint
+);
+
 DROP TABLE IF EXISTS Parcels_historic;
 CREATE TABLE Parcels_historic
  (
@@ -172,11 +189,19 @@ CREATE TABLE Reduced_Parcels_historic
 	capakey_ap		Character varying (20)
 );
 
+DROP TABLE IF EXISTS Complete_parcels_genealogy;
+CREATE TABLE Complete_parcels_genealogy
+ (
+	capakey             Character varying (20),
+	partNumber          Character varying (10),
+	predecessors        Character varying (100000),
+	successors          Character varying (100000)
+);
+
 DROP TABLE IF EXISTS Parcels_genealogy;
 CREATE TABLE Parcels_genealogy
  (
 	capakey             Character varying (20),
-	partNumber          Character varying (10),
 	predecessors        Character varying (100000),
 	successors          Character varying (100000)
 );

@@ -206,6 +206,89 @@ def generate_capakey(div, section, primary, bis, exponent_l, exponent_n):
     return capakey
 
 
+def reduce_old_parcels_array(array, time='av'):
+    to_drop = time == 'av' and 'ap' or 'av'
+    array = array.drop(columns=[
+        'articleNumber_av',
+        'articleOrder_av',
+        'noParcel_av',
+        'parclCadStatu_av',
+        'flagAnnul',
+        'flagInterm_av',
+        'descriptPrivate_av',
+        'articleNumber_ap',
+        'articleOrder_ap',
+        'noParcel_ap',
+        'parclCadStatu_ap',
+        'flagInterm_ap',
+        'descriptPrivate_ap',
+        'dossier',
+        'sketch',
+        'propertySituationIdf_{}'.format(to_drop),
+        'divCad_{}'.format(to_drop),
+        'section_{}'.format(to_drop),
+        'primaryNumber_{}'.format(to_drop),
+        'bisNumber_{}'.format(to_drop),
+        'exponentLetter_{}'.format(to_drop),
+        'exponentNumber_{}'.format(to_drop),
+        'partNumber_{}'.format(to_drop),
+        'yearBegin_{}'.format(to_drop),
+        'yearEnd_{}'.format(to_drop),
+        'yearAnnul_{}'.format(to_drop),
+        'capakey_{}'.format(to_drop),
+    ])
+    array = array.rename(
+        index=str,
+        columns={
+            'propertySituationIdf_{}'.format(time): 'propertySituationId',
+            'divCad_{}'.format(time): 'divCad',
+            'section_{}'.format(time): 'section',
+            'primaryNumber_{}'.format(time): 'primaryNumber',
+            'bisNumber_{}'.format(time): 'bisNumber',
+            'exponentLetter_{}'.format(time): 'exponentLetter',
+            'exponentNumber_{}'.format(time): 'exponentNumber',
+            'partNumber_{}'.format(time): 'partNumber',
+            'yearBegin_{}'.format(time): 'yearBegin',
+            'yearEnd_{}'.format(time): 'yearEnd',
+            'yearAnnul_{}'.format(time): 'yearAnnul',
+            'capakey_{}'.format(time): 'capakey',
+        },
+    )
+    array = array.assign(
+        partNumber=lambda array: array['partNumber'].replace('', 'P0000'),
+    )
+    array = array.drop_duplicates()
+    reorder = [
+        'capakey',
+        'divCad',
+        'section',
+        'primaryNumber',
+        'bisNumber',
+        'exponentLetter',
+        'exponentNumber',
+        'partNumber',
+        'yearAnnul',
+        'yearBegin',
+        'yearEnd',
+        'propertySituationId',
+    ]
+    array = array[reorder]
+    return array
+
+
+def get_old_parcels_array(array):
+    array_av = reduce_old_parcels_array(array, 'av')
+    array_ap = reduce_old_parcels_array(array, 'ap')
+    merged_array = array_av.append(array_ap)
+    merged_array = merged_array.drop_duplicates()
+    to_drop = []
+    for index, row in merged_array.iterrows():
+        if not row.capakey:
+            to_drop.append(index)
+    merged_array = merged_array.drop(to_drop)
+    return merged_array
+
+
 def reduce_historic_array(array):
     array = array.drop(columns=[
         'propertySituationIdf_av',
@@ -244,7 +327,20 @@ def reduce_historic_array(array):
     return array
 
 
-def create_historic_graph(array):
+def reduce_historic_to_capakey_only(array):
+    array = array.drop(columns=[
+        'partNumber_av',
+        'partNumber_ap',
+    ])
+    to_drop = []
+    for index, row in array.iterrows():
+        if row.capakey_av == row.capakey_ap:
+            to_drop.append(index)
+    array = array.drop(to_drop)
+    return array
+
+
+def create_full_historic_graph(array):
     graph = networkx.DiGraph()
     for row in array.itertuples():
         before = (row.capakey_av, row.partNumber_av)
@@ -256,24 +352,39 @@ def create_historic_graph(array):
     return graph
 
 
-def build_genealogy(array):
-    def get_successors(graph, node, checked=set([])):
-        successors = {}
-        checked.add(node)
-        for subnode in graph.successors(node):
-            if subnode not in checked:
-                successors[subnode] = get_successors(graph, subnode, checked)
-        return successors
+def create_capakey_historic_graph(array):
+    graph = networkx.DiGraph()
+    for row in array.itertuples():
+        before = row.capakey_av
+        after = row.capakey_ap
+        if before and after:
+            graph.add_node(before)
+            graph.add_node(after)
+            graph.add_edge(before, after)
+    return graph
 
-    def get_predecessors(graph, node, checked=set([])):
-        predecessors = {}
-        checked.add(node)
-        for subnode in graph.predecessors(node):
-            if subnode not in checked:
-                predecessors[subnode] = get_predecessors(graph, subnode, checked)
-        return predecessors
 
-    graph = create_historic_graph(array)
+def get_successors(graph, node, checked=set([])):
+    successors = {}
+    checked.add(node)
+    for subnode in graph.successors(node):
+        if subnode not in checked:
+            successors[subnode] = get_successors(graph, subnode, checked)
+    return successors
+
+
+def get_predecessors(graph, node, checked=set([])):
+    predecessors = {}
+    checked.add(node)
+    for subnode in graph.predecessors(node):
+        if subnode not in checked:
+            predecessors[subnode] = get_predecessors(graph, subnode, checked)
+    return predecessors
+
+
+def build_full_genealogy(array):
+    columns = ['capakey', 'partNumber', 'predecessors', 'successors']
+    graph = create_full_historic_graph(array)
     new_historic = []
     for node in graph.nodes():
         capakey = node[0]
@@ -284,7 +395,24 @@ def build_genealogy(array):
 
     new_array = pandas.DataFrame(
         data=new_historic,
-        columns=['capakey', 'partNumber', 'predecessors', 'successors']
+        columns=columns
+    )
+    return new_array
+
+
+def build_capakey_genealogy(array):
+    columns = ['capakey', 'predecessors', 'successors']
+    graph = create_capakey_historic_graph(array)
+    new_historic = []
+    for node in graph.nodes():
+        capakey = node
+        predecessors = str(get_predecessors(graph, node, checked=set([])))
+        successors = str(get_successors(graph, node, checked=set([])))
+        new_historic.append([capakey, predecessors, successors])
+
+    new_array = pandas.DataFrame(
+        data=new_historic,
+        columns=columns
     )
     return new_array
 
@@ -323,13 +451,20 @@ def main():
     print("* Importing historic data")
     copy_from_array_to_postgres(conn, new_historic_array, "Parcels_historic",
                                 skip_header=True)
+    print("* Importing old parcels")
+    old_parcels_array = get_old_parcels_array(new_historic_array)
+    copy_from_array_to_postgres(conn, old_parcels_array, "Old_parcels", skip_header=True)
     reduced_historic_array = reduce_historic_array(new_historic_array)
     print("* Importing reduced historic data")
     copy_from_array_to_postgres(conn, reduced_historic_array, "Reduced_Parcels_historic", sep=';',
                                 skip_header=True)
-    genealogy_array = build_genealogy(reduced_historic_array)
+    genealogy_array = build_full_genealogy(reduced_historic_array)
     print("* Importing genealogy of each capakey")
-    copy_from_array_to_postgres(conn, genealogy_array, "Parcels_genealogy",
+    copy_from_array_to_postgres(conn, genealogy_array, "Complete_parcels_genealogy",
+                                skip_header=True)
+    capakey_historic_array = reduce_historic_to_capakey_only(reduced_historic_array)
+    capakey_genealogy_array = build_capakey_genealogy(capakey_historic_array)
+    copy_from_array_to_postgres(conn, capakey_genealogy_array, "Parcels_genealogy",
                                 skip_header=True)
     copy_from_csv_to_postgres_copy(conn, path_to_owner, "Owners_imp", sep=';',
                                    skip_header=True)
