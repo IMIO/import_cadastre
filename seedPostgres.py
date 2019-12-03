@@ -159,7 +159,7 @@ def get_historic_array(path):
         if merged_arrays is None:
             merged_arrays = array
         else:
-            merged_arrays = merged_arrays.append(array)
+            merged_arrays = merged_arrays.append(array, ignore_index=True)
     return merged_arrays
 
 
@@ -323,8 +323,8 @@ def reduce_historic_array(array):
     for index, row in array.iterrows():
         if row.capakey_av == row.capakey_ap and row.partNumber_av == row.partNumber_ap:
             to_drop.append(index)
-    array = array.drop(to_drop)
-    return array
+    cleaned_array = array.drop(to_drop)
+    return cleaned_array
 
 
 def reduce_historic_to_capakey_only(array):
