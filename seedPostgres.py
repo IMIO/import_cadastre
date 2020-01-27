@@ -441,7 +441,8 @@ def main():
     database_name = os.environ["CAD_DATABASE_NAME"]
     user_name = os.environ["CAD_DB_USER_NAME"]
     user_password = os.environ["CAD_DB_USER_PASSWORD"]
-    conn = psycopg2.connect("host=%s dbname=%s user=%s password=%s" % (pg_host, database_name, user_name, user_password))
+    port = os.environ["CAD_PG_PORT"]
+    conn = psycopg2.connect("host=%s dbname=%s user=%s password=%s port=%s" % (pg_host, database_name, user_name, user_password, port))
     check_postgis()
     print("* Creating tables")
     create_tables(conn, cadastre_date)
