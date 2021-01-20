@@ -163,7 +163,7 @@ CREATE TABLE Parcels_historic
     yearEnd_ap          Integer,
     yearAnnul_ap        Integer,
     dossier             Character varying (100),
-    sketch              Character varying (110),
+    sketch              Character varying (180),
 	capakey_av		Character varying (20),
 	capakey_ap		Character varying (20)
 );
