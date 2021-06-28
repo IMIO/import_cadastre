@@ -12,6 +12,7 @@ Prérequis:
 Variables d'environnement :
 ===========================
 
+   To define in config.cfg.
  - CADASTREDIR : qui pointe vers le répertoire contenant tout les fichiers du cadastre.
  - PG_HOST : hôte de la base de données (ex: localhost)
  - DATABASE_NAME : nom de la base de données (ex: test_urban)
@@ -32,6 +33,7 @@ Structure du répertoire de données cadastrales :
         * B_CaBu.shp
         * A_AdMu.shp
         * ....
+        * les shapefiles viennent du l'url https://eservices.minfin.fgov.be/myminfin-web/pages/cadastral-plans (lambert72)
 ``
 Exemple de valeur pour la configuration d'exemple : /Users/niko/dev_imio/import_cadastre/data/Soignies
 
