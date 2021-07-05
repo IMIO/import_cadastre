@@ -149,13 +149,22 @@ def get_historic_array(path):
     """ """
     merged_arrays = None
     for file_name in os.listdir(path):
-        array = pandas.read_csv(
-            os.path.join(path, file_name),
-            sep=';',
-            header=0,
-            encoding='iso8859-1',
-            na_filter=False
-        )
+        full_path = os.path.join(path, file_name)
+        read_args = {
+            'filepath_or_buffer': full_path,
+            'sep': ';',
+            'header': 0,
+            'encoding': 'iso8859-1',
+            'na_filter': False
+        }
+        # check header
+        base_file = open(full_path, 'r')
+        header = base_file.readline()
+        # if no header, add one
+        if not header.startswith('propertySituationIdf_av;divCad_av;'):
+            base_file.close()
+            read_args['names'] = ['propertySituationIdf_av', 'divCad_av', 'articleNumber_av', 'articleOrder_av', 'section_av', 'primaryNumber_av', 'bisNumber_av', 'exponentLetter_av', 'exponentNumber_av', 'partNumber_av', 'noParcel_av', 'parclCadStatu_av', 'flagAnnul', 'flagInterm_av', 'descriptPrivate_av', 'yearBegin_av', 'yearEnd_av', 'yearAnnul_av', 'propertySituationIdf_ap', 'divCad_ap', 'articleNumber_ap', 'articleOrder_ap', 'section_ap', 'primaryNumber_ap', 'bisNumber_ap', 'exponentLetter_ap', 'exponentNumber_ap', 'partNumber_ap', 'noParcel_ap', 'parclCadStatu_ap', 'flagInterm_ap', 'descriptPrivate_ap', 'yearBegin_ap', 'yearEnd_ap', 'yearAnnul_ap', 'dossier', 'sketch']
+        array = pandas.read_csv(**read_args)
         if merged_arrays is None:
             merged_arrays = array
         else:
