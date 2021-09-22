@@ -459,33 +459,33 @@ def main():
     historic_array = get_historic_array(path_to_historic)
     new_historic_array = add_capakey_columns(historic_array)
     print("* Importing historic data")
-    copy_from_array_to_postgres(conn, new_historic_array, "Parcels_historic",
+    copy_from_array_to_postgres(conn, new_historic_array, "parcels_historic",
                                 skip_header=True)
     print("* Importing old parcels")
     old_parcels_array = get_old_parcels_array(new_historic_array)
-    copy_from_array_to_postgres(conn, old_parcels_array, "Old_parcels", skip_header=True)
+    copy_from_array_to_postgres(conn, old_parcels_array, "old_parcels", skip_header=True)
     reduced_historic_array = reduce_historic_array(new_historic_array)
     print("* Importing reduced historic data")
-    copy_from_array_to_postgres(conn, reduced_historic_array, "Reduced_Parcels_historic", sep=';',
+    copy_from_array_to_postgres(conn, reduced_historic_array, "reduced_parcels_historic", sep=';',
                                 skip_header=True)
     genealogy_array = build_full_genealogy(reduced_historic_array)
     print("* Importing genealogy of each capakey")
-    copy_from_array_to_postgres(conn, genealogy_array, "Complete_parcels_genealogy",
+    copy_from_array_to_postgres(conn, genealogy_array, "complete_parcels_genealogy",
                                 skip_header=True)
     capakey_historic_array = reduce_historic_to_capakey_only(reduced_historic_array)
     capakey_genealogy_array = build_capakey_genealogy(capakey_historic_array)
-    copy_from_array_to_postgres(conn, capakey_genealogy_array, "Parcels_genealogy",
+    copy_from_array_to_postgres(conn, capakey_genealogy_array, "parcels_genealogy",
                                 skip_header=True)
-    copy_from_csv_to_postgres_copy(conn, path_to_owner, "Owners_imp", sep=';',
+    copy_from_csv_to_postgres_copy(conn, path_to_owner, "owners_imp", sep=';',
                                    skip_header=True)
-    copy_from_csv_to_postgres_copy(conn, path_to_parcel, "Parcels_imp", sep=';',
+    copy_from_csv_to_postgres_copy(conn, path_to_parcel, "parcels_imp", sep=';',
                                    skip_header=True)
-    copy_from_parcel_codes_to_postgres(conn, path_to_parcel_codes, "Global_Natures",
+    copy_from_parcel_codes_to_postgres(conn, path_to_parcel_codes, "global_Natures",
                                        sep=';', skip_header=True)
     print("* Filling tables")
     filling_tables(conn, cadastre_date)
 
-    copy_division_to_postgres(conn, path_to_parcel_codes, "Global_Natures",
+    copy_division_to_postgres(conn, path_to_parcel_codes, "global_Natures",
                               sep=';', skip_header=True)
     clean_unused_division(conn)
 
