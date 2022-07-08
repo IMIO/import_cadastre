@@ -22,6 +22,7 @@ Variables d'environnement :
 Structure du répertoire de données cadastrales :
 ================================================
 
+dans le sous dossier ./input
  ``
  Soignies
     * Matrice
@@ -29,6 +30,9 @@ Structure du répertoire de données cadastrales :
         * Parcel.csv
     * Matrice_doc
         * OUPUT PARCELS_*.xlsx
+    * Historique
+        * EXTRHIS_*_2020.csv
+        * ....
     * Plan
         * B_CaBu.shp
         * A_AdMu.shp

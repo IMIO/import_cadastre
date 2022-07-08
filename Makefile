@@ -4,7 +4,7 @@ export
 
 SHELL :=/bin/bash
 
-all: printenv seedpostgres
+all: printenv install seedpostgres
 
 install:
 	virtualenv -p python3 env; \
@@ -13,11 +13,11 @@ install:
 
 parsecadastre: printenv
 	source env/bin/activate; \
-	python import.py; \
+	python3 import.py; \
 
 seedpostgres: printenv
 	source env/bin/activate; \
-	python seedPostgres.py; \
+	python3 seedPostgres.py; \
 
 clean:
 	rm -Rf env;
