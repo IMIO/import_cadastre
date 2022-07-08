@@ -68,8 +68,8 @@ CREATE TABLE OwnersProperties
 	propertySituationId		bigint NOT NULL,
 	"order"				Integer,
 	partyType			Integer,
-	OwnerRight			Character varying (120),
-	right_trad			Character varying (102),
+	OwnerRight			Character varying (200),
+	right_trad			Character varying (180),
 	managedBy			Character varying (4),
 	owner_UID			bigint,
 	partner_UID			bigint,
@@ -195,7 +195,7 @@ CREATE TABLE Complete_parcels_genealogy
 	capakey             Character varying (20),
 	partNumber          Character varying (10),
 	predecessors        Character varying (100000),
-	successors          Character varying (110000)
+	successors          Character varying (121000)
 );
 
 DROP TABLE IF EXISTS Parcels_genealogy;
@@ -203,7 +203,7 @@ CREATE TABLE Parcels_genealogy
  (
 	capakey             Character varying (20),
 	predecessors        Character varying (100000),
-	successors          Character varying (110000)
+	successors          Character varying (121000)
 );
 
 DROP TABLE IF EXISTS Parcels_CC;
@@ -275,8 +275,8 @@ CREATE TABLE Owners_imp
 	propertySituationIdf		Bigint,
 	"order"			        Integer,
 	partyType			Integer,
-	OwnerRight			Character varying (120),
-	right_trad			Character varying (102),
+	OwnerRight			Character varying (200),
+	right_trad			Character varying (180),
 	managedBy			Character varying (4),
 	owner_officialId		Character varying (30),
 	owner_name			Character varying (400),
