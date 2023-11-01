@@ -495,13 +495,13 @@ def main():
         'CaPaKey', 'CaSeKey'
     ])
 
-#    load_shapefile(conn, "cabu", path_to_cabu, [
-#        'RecId', 'Type'
-#    ])
-#
-#    load_shapefile(conn, "rebu", path_to_rebu, [
-#        'ID_ORIG', 'Type'
-#    ])
+    load_shapefile(conn, "cabu", path_to_cabu, [
+        'RecId', 'Type'
+    ])
+
+    load_shapefile(conn, "rebu", path_to_rebu, [
+        'ID_ORIG', 'Type'
+    ])
 
     print("* Done \n")
 
