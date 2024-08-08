@@ -1,15 +1,16 @@
+import csv
+import glob
 import io
 import os
 import sys
-import csv
-import glob
+
+import cadutils
 import fiona
-from shapely.geometry import shape
+import networkx
+import pandas
 import psycopg2
 import xlrd
-import cadutils
-import pandas
-import networkx
+from shapely.geometry import shape
 
 
 def load_ddl(conn, ddlfile):
