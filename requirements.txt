@@ -1,5 +1,5 @@
 pandas==1.4.0
-geopandas==0.14.1
+geopandas==1.1.2
 xlrd==1.2.0
 psycopg2==2.9.1
 networkx==3.2.1
